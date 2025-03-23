@@ -8,7 +8,7 @@ import {
   ServerIcon,
   ShieldCheckIcon
 } from '@heroicons/react/24/outline';
-import { SignInButton, SignUpButton, useAuth } from '@clerk/clerk-react';
+import { SignInButton, SignUpButton, SignOutButton, useAuth } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -70,26 +70,26 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-900">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="relative z-10 pb-8 bg-gray-50 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
+          <div className="relative z-10 pb-8 bg-gray-900 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
             <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 lg:mt-16">
               <div className="sm:text-center lg:text-left">
-                <h1 className="text-4xl tracking-tight font-bold text-gray-900 sm:text-5xl md:text-6xl">
+                <h1 className="text-4xl tracking-tight font-bold text-white sm:text-5xl md:text-6xl">
                   <span className="block">Welcome to</span>
-                  <span className="block text-blue-600">AdaptiGTO</span>
+                  <span className="block text-blue-500">AdaptiGTO</span>
                 </h1>
-                <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+                <p className="mt-3 text-base text-gray-300 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
                   Advanced poker strategy powered by AI. Get personalized GTO recommendations and improve your game.
                 </p>
                 <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
                   {isSignedIn ? (
-                    <div className="rounded-md shadow">
+                    <div className="rounded-md shadow space-x-4">
                       <button
                         onClick={handlePreOrder}
-                        className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10"
+                        className="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10"
                       >
                         Pre-order Now
                       </button>
@@ -102,7 +102,7 @@ const LandingPage = () => {
                         </button>
                       </SignInButton>
                       <SignUpButton mode="modal">
-                        <button className="w-full flex items-center justify-center px-8 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10">
+                        <button className="w-full flex items-center justify-center px-8 py-3 border border-gray-300 text-base font-medium rounded-md text-white bg-gray-800 hover:bg-gray-700 md:py-4 md:text-lg md:px-10">
                           Sign Up
                         </button>
                       </SignUpButton>
@@ -116,13 +116,13 @@ const LandingPage = () => {
       </div>
 
       {/* Features Section */}
-      <div className="py-12 bg-white">
+      <div className="py-12 bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+            <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
               Why Choose AdaptiGTO?
             </h2>
-            <p className="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
+            <p className="mt-4 max-w-2xl text-xl text-gray-300 mx-auto">
               Advanced features to improve your poker game
             </p>
           </div>
@@ -130,14 +130,14 @@ const LandingPage = () => {
           <div className="mt-10">
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {/* Feature 1 */}
-              <div className="relative p-6 bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
+              <div className="relative p-6 bg-gray-700 rounded-lg border border-gray-600 hover:shadow-lg transition-shadow">
                 <div className="flex items-center space-x-4">
                   <div className="flex-shrink-0">
-                    <ServerIcon className="h-6 w-6 text-blue-600" />
+                    <ServerIcon className="h-6 w-6 text-blue-400" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900">Real-time Analysis</h3>
-                    <p className="mt-2 text-base text-gray-500">
+                    <h3 className="text-lg font-medium text-white">Real-time Analysis</h3>
+                    <p className="mt-2 text-base text-gray-300">
                       Get instant GTO recommendations for any poker situation.
                     </p>
                   </div>
@@ -145,14 +145,14 @@ const LandingPage = () => {
               </div>
 
               {/* Feature 2 */}
-              <div className="relative p-6 bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
+              <div className="relative p-6 bg-gray-700 rounded-lg border border-gray-600 hover:shadow-lg transition-shadow">
                 <div className="flex items-center space-x-4">
                   <div className="flex-shrink-0">
-                    <LockClosedIcon className="h-6 w-6 text-blue-600" />
+                    <LockClosedIcon className="h-6 w-6 text-blue-400" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900">Secure Platform</h3>
-                    <p className="mt-2 text-base text-gray-500">
+                    <h3 className="text-lg font-medium text-white">Secure Platform</h3>
+                    <p className="mt-2 text-base text-gray-300">
                       Your data is protected with enterprise-grade security.
                     </p>
                   </div>
@@ -160,14 +160,14 @@ const LandingPage = () => {
               </div>
 
               {/* Feature 3 */}
-              <div className="relative p-6 bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
+              <div className="relative p-6 bg-gray-700 rounded-lg border border-gray-600 hover:shadow-lg transition-shadow">
                 <div className="flex items-center space-x-4">
                   <div className="flex-shrink-0">
-                    <CogIcon className="h-6 w-6 text-blue-600" />
+                    <CogIcon className="h-6 w-6 text-blue-400" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900">Customizable</h3>
-                    <p className="mt-2 text-base text-gray-500">
+                    <h3 className="text-lg font-medium text-white">Customizable</h3>
+                    <p className="mt-2 text-base text-gray-300">
                       Adapt the system to your playing style and preferences.
                     </p>
                   </div>
@@ -182,42 +182,52 @@ const LandingPage = () => {
       {isSignedIn && (
         <>
           {/* Mobile Navigation */}
-          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 px-4 sm:hidden z-50">
-            <div className="flex justify-around">
+          <div className="fixed bottom-0 left-0 right-0 bg-gray-800 border-t border-gray-700 py-2 px-4 sm:hidden z-50">
+            <div className="flex justify-around items-center">
               <button
                 onClick={() => navigate('/trial')}
-                className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md text-sm font-medium"
+                className="text-blue-400 hover:text-blue-300 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Try Demo
               </button>
               {isAdmin && (
                 <button
                   onClick={() => navigate('/admin')}
-                  className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-blue-400 hover:text-blue-300 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   Admin
                 </button>
               )}
+              <SignOutButton>
+                <button className="text-red-400 hover:text-red-300 px-3 py-2 rounded-md text-sm font-medium">
+                  Sign Out
+                </button>
+              </SignOutButton>
             </div>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden sm:block sm:fixed sm:top-0 sm:right-0 sm:p-4 z-50 bg-white bg-opacity-90">
-            <div className="flex space-x-4">
+          <div className="hidden sm:block sm:fixed sm:top-0 sm:right-0 sm:p-4 z-50 bg-gray-800 bg-opacity-90">
+            <div className="flex space-x-4 items-center">
               <button
                 onClick={() => navigate('/trial')}
-                className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md text-sm font-medium"
+                className="text-blue-400 hover:text-blue-300 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Try Demo
               </button>
               {isAdmin && (
                 <button
                   onClick={() => navigate('/admin')}
-                  className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-blue-400 hover:text-blue-300 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   Admin
                 </button>
               )}
+              <SignOutButton>
+                <button className="text-red-400 hover:text-red-300 px-3 py-2 rounded-md text-sm font-medium">
+                  Sign Out
+                </button>
+              </SignOutButton>
             </div>
           </div>
         </>
@@ -225,12 +235,12 @@ const LandingPage = () => {
 
       {/* Status Messages */}
       {preorderStatus === 'success' && (
-        <div className="fixed bottom-20 sm:bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+        <div className="fixed bottom-20 sm:bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 bg-green-900 border border-green-700 text-green-100 px-4 py-3 rounded">
           <p className="text-center">Thank you for your pre-order!</p>
         </div>
       )}
       {preorderStatus === 'error' && (
-        <div className="fixed bottom-20 sm:bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="fixed bottom-20 sm:bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 bg-red-900 border border-red-700 text-red-100 px-4 py-3 rounded">
           <p className="text-center">Please sign in to pre-order.</p>
         </div>
       )}
