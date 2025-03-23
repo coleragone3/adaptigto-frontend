@@ -41,8 +41,9 @@ const AdminPanel = () => {
         
         const token = await getToken();
         console.log('Admin token received:', token ? 'Token exists' : 'No token');
+        console.log('Using API URL:', API_URL);
         
-        const response = await fetch('http://localhost:3001/api/admin/users', {
+        const response = await fetch(`${API_URL}/api/admin/users`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -92,7 +93,7 @@ const AdminPanel = () => {
     try {
       const token = await getToken();
       const response = await fetch(`${API_URL}/api/admin/users/${userId}/${shouldBlock ? 'block' : 'unblock'}`, {
-        method: 'PUT',
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
