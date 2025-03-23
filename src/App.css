@@ -1,0 +1,9 @@
+.App {
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .App {
+    text-align: left;
+  }
+} 
