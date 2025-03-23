@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser, useAuth } from '@clerk/clerk-react';
+import { useUser, useAuth, useSession } from '@clerk/clerk-react';
 import {
   UserGroupIcon,
   ClockIcon,
@@ -16,6 +16,7 @@ const AdminPanel = () => {
   const navigate = useNavigate();
   const { user } = useUser();
   const { getToken } = useAuth();
+  const { session } = useSession();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -45,18 +46,17 @@ const AdminPanel = () => {
         setLoading(true);
         setError(null);
         
-        const token = await getToken();
-        if (!token) {
-          throw new Error('No authentication token available');
+        if (!session?.id) {
+          throw new Error('No session available');
         }
 
-        console.log('Admin token received:', token ? 'Token exists' : 'No token');
+        console.log('Using session ID:', session.id);
         console.log('Using API URL:', API_URL);
         
         // Fetch users
         const usersResponse = await fetch(`${API_URL}/api/admin/users`, {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${session.id}`,
             'Content-Type': 'application/json'
           }
         });
@@ -64,7 +64,7 @@ const AdminPanel = () => {
         // Fetch visits
         const visitsResponse = await fetch(`${API_URL}/api/admin/visits`, {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${session.id}`,
             'Content-Type': 'application/json'
           }
         });
@@ -107,19 +107,18 @@ const AdminPanel = () => {
     if (user?.primaryEmailAddress?.emailAddress === 'coleragone@gmail.com') {
       fetchData();
     }
-  }, [user, getToken]);
+  }, [user, session]);
 
   const handleBlockUser = async (userId, shouldBlock) => {
     try {
-      const token = await getToken();
-      if (!token) {
-        throw new Error('No authentication token available');
+      if (!session?.id) {
+        throw new Error('No session available');
       }
 
       const response = await fetch(`${API_URL}/api/admin/users/${userId}/${shouldBlock ? 'block' : 'unblock'}`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${session.id}`,
           'Content-Type': 'application/json'
         }
       });
