@@ -113,15 +113,15 @@ const TrialSimulator = () => {
 
     // Calculate evenly spaced positions around the table
     const seatPositions = {
-      'UTG': 'top-[15%] left-[15%]',
-      'UTG+1': 'top-[8%] left-[35%]',
-      'MP': 'top-[8%] left-[55%]',
-      'MP+1': 'top-[8%] right-[35%]',
-      'HJ': 'top-[15%] right-[15%]',
-      'CO': 'bottom-[15%] right-[15%]',
-      'BTN': 'bottom-[8%] right-[35%]',
-      'SB': 'bottom-[8%] left-[35%]',
-      'BB': 'bottom-[15%] left-[15%]'
+      'UTG': 'top-[20%] left-[15%]',
+      'UTG+1': 'top-[10%] left-[30%]',
+      'MP': 'top-[8%] left-[48%]',
+      'MP+1': 'top-[10%] right-[30%]',
+      'HJ': 'top-[20%] right-[15%]',
+      'CO': 'bottom-[20%] right-[15%]',
+      'BTN': 'bottom-[10%] right-[30%]',
+      'SB': 'bottom-[8%] left-[48%]',
+      'BB': 'bottom-[20%] left-[15%]'
     };
 
     // Position cards in front of seats
@@ -137,26 +137,38 @@ const TrialSimulator = () => {
       'BB': 'top-[120%] left-1/2'
     };
 
-    // Inner circle for chip placement
+    // Inner circle for chip placement - adjusted for better visual flow
     const chipPositions = {
-      'UTG': 'top-[35%] left-[25%]',
-      'UTG+1': 'top-[25%] left-[40%]',
-      'MP': 'top-[25%] left-[55%]',
-      'MP+1': 'top-[25%] right-[40%]',
-      'HJ': 'top-[35%] right-[25%]',
-      'CO': 'bottom-[35%] right-[25%]',
-      'BTN': 'bottom-[25%] right-[40%]',
-      'SB': 'bottom-[25%] left-[40%]',
-      'BB': 'bottom-[35%] left-[25%]'
+      'UTG': 'top-[45%] left-[30%]',
+      'UTG+1': 'top-[35%] left-[42%]',
+      'MP': 'top-[32%] left-[48%]',
+      'MP+1': 'top-[35%] right-[42%]',
+      'HJ': 'top-[45%] right-[30%]',
+      'CO': 'bottom-[45%] right-[30%]',
+      'BTN': 'bottom-[35%] right-[42%]',
+      'SB': 'bottom-[32%] left-[48%]',
+      'BB': 'bottom-[45%] left-[30%]'
     };
 
     // Calculate total pot including blinds and raises
     const calculatePotAndChips = () => {
       let chips = {};
       // Add small blind
-      chips['SB'] = { amount: 0.5, type: 'sb', stacks: [{ value: 0.5, color: 'bg-yellow-400' }] };
+      chips['SB'] = { 
+        amount: 0.5, 
+        type: 'sb', 
+        stacks: [
+          { value: 0.5, color: 'bg-yellow-400', size: 'w-8 h-8' }
+        ] 
+      };
       // Add big blind
-      chips['BB'] = { amount: 1, type: 'bb', stacks: [{ value: 1, color: 'bg-yellow-500' }] };
+      chips['BB'] = { 
+        amount: 1, 
+        type: 'bb', 
+        stacks: [
+          { value: 1, color: 'bg-yellow-500', size: 'w-8 h-8' }
+        ] 
+      };
       
       // Add raise if exists
       if (raisePosition) {
@@ -164,9 +176,9 @@ const TrialSimulator = () => {
           amount: 3, 
           type: 'raise',
           stacks: [
-            { value: 1, color: 'bg-yellow-500' },
-            { value: 1, color: 'bg-yellow-500' },
-            { value: 1, color: 'bg-yellow-500' }
+            { value: 1, color: 'bg-yellow-500', size: 'w-8 h-8' },
+            { value: 1, color: 'bg-yellow-500', size: 'w-7 h-7' },
+            { value: 1, color: 'bg-yellow-500', size: 'w-6 h-6' }
           ]
         };
       }
@@ -241,12 +253,12 @@ const TrialSimulator = () => {
                 {/* Chips on the felt */}
                 {chips[player.position] && (
                   <div className={`absolute ${chipPositions[player.position]} flex items-center justify-center`}>
-                    <div className="relative w-10 h-10">
+                    <div className="relative">
                       {chips[player.position].stacks.map((chip, i) => (
                         <div
                           key={i}
-                          className={`absolute w-10 h-10 rounded-full ${chip.color} border-2 border-yellow-600 shadow-xl flex items-center justify-center text-white font-bold text-xs
-                            ${i === 0 ? 'top-0' : i === 1 ? '-top-2' : '-top-4'}`}
+                          className={`absolute ${chip.size} rounded-full ${chip.color} border border-yellow-600 shadow-lg flex items-center justify-center text-white font-bold text-xs
+                            ${i === 0 ? 'top-0 z-30' : i === 1 ? '-top-1 z-20' : '-top-2 z-10'}`}
                         >
                           {i === 0 && chip.value + 'BB'}
                         </div>
