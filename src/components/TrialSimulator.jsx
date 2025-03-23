@@ -301,22 +301,13 @@ const TrialSimulator = () => {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          <div>
-            <h2 className="text-4xl font-bold text-gray-900 sm:text-5xl mb-4">
-              Poker Table Simulator
-            </h2>
-            <p className="text-xl text-gray-600">
-              Experience real-time GTO analysis in a familiar table setting. Practice optimal preflop decisions with instant feedback.
-            </p>
-          </div>
-          <div className="flex items-center justify-center">
-            <img 
-              src="https://images.unsplash.com/photo-1609743522653-52354461eb27?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
-              alt="Poker Analytics"
-              className="rounded-xl shadow-2xl"
-            />
-          </div>
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold text-gray-900 sm:text-5xl mb-4">
+            Poker Table Simulator
+          </h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Experience real-time GTO analysis in a familiar table setting. Practice optimal preflop decisions with instant feedback.
+          </p>
         </div>
 
         {renderPokerTable()}
