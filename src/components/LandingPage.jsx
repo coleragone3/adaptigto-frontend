@@ -179,44 +179,49 @@ const LandingPage = () => {
       </div>
 
       {/* Navigation Links */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 px-4 sm:hidden">
-        <div className="flex justify-around">
-          <button
-            onClick={() => navigate('/trial')}
-            className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md text-sm font-medium"
-          >
-            Try Demo
-          </button>
-          {isAdmin && (
-            <button
-              onClick={() => navigate('/admin')}
-              className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Admin
-            </button>
-          )}
-        </div>
-      </div>
+      {isSignedIn && (
+        <>
+          {/* Mobile Navigation */}
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 px-4 sm:hidden z-50">
+            <div className="flex justify-around">
+              <button
+                onClick={() => navigate('/trial')}
+                className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Try Demo
+              </button>
+              {isAdmin && (
+                <button
+                  onClick={() => navigate('/admin')}
+                  className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Admin
+                </button>
+              )}
+            </div>
+          </div>
 
-      {/* Desktop Navigation */}
-      <div className="hidden sm:fixed sm:top-0 sm:right-0 sm:p-4">
-        <div className="flex space-x-4">
-          <button
-            onClick={() => navigate('/trial')}
-            className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md text-sm font-medium"
-          >
-            Try Demo
-          </button>
-          {isAdmin && (
-            <button
-              onClick={() => navigate('/admin')}
-              className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Admin
-            </button>
-          )}
-        </div>
-      </div>
+          {/* Desktop Navigation */}
+          <div className="hidden sm:block sm:fixed sm:top-0 sm:right-0 sm:p-4 z-50 bg-white bg-opacity-90">
+            <div className="flex space-x-4">
+              <button
+                onClick={() => navigate('/trial')}
+                className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Try Demo
+              </button>
+              {isAdmin && (
+                <button
+                  onClick={() => navigate('/admin')}
+                  className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Admin
+                </button>
+              )}
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Status Messages */}
       {preorderStatus === 'success' && (
