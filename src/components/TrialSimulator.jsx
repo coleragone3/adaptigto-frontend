@@ -12,9 +12,9 @@ const POSITIONS = ['UTG', 'UTG+1', 'MP', 'MP+1', 'HJ', 'CO', 'BTN', 'SB', 'BB'];
 const TrialSimulator = () => {
   const { user } = useUser();
   const navigate = useNavigate();
-  const [showGTO, setShowGTO] = useState(false);
+  const [showFlop, setShowFlop] = useState(false);
   const [gameState, setGameState] = useState(null);
-  const [selectedPosition, setSelectedPosition] = useState('BTN'); // Default to button
+  const [selectedPosition, setSelectedPosition] = useState('BTN');
 
   const generateRandomCard = (usedCards = []) => {
     let card;
@@ -56,11 +56,11 @@ const TrialSimulator = () => {
       }))
     });
     setSelectedPosition(randomPosition);
-    setShowGTO(false);
+    setShowFlop(false);
   };
 
   const getCardColor = (suit) => {
-    return suit === '♥' || suit === '♦' ? 'text-red-400' : 'text-gray-100';
+    return suit === '♥' || suit === '♦' ? 'text-red-600' : 'text-black';
   };
 
   const calculateGTOStrategy = (cards, position, stack) => {
@@ -68,7 +68,6 @@ const TrialSimulator = () => {
     const isSuited = cards[0].suit === cards[1].suit;
     const isPair = cards[0].rank === cards[1].rank;
     
-    // More sophisticated GTO strategy based on position and stack depth
     if (position === 'BTN' || position === 'CO') {
       if (isPair || (handStrength > 20) || (isSuited && handStrength > 18)) {
         return { raise: 85, call: 10, fold: 5 };
@@ -119,15 +118,17 @@ const TrialSimulator = () => {
     return (
       <div className="relative w-full max-w-2xl h-[400px] mx-auto bg-green-800 rounded-full border-8 border-brown-800 mb-8">
         {/* Center/Community Cards */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-2">
-          {gameState.flopCards.map((card, index) => (
-            <div key={index} className="w-10 h-14 bg-white rounded-lg shadow flex items-center justify-center">
-              <span className={`text-xl ${getCardColor(card.suit)}`}>
-                {card.rank}{card.suit}
-              </span>
-            </div>
-          ))}
-        </div>
+        {showFlop && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-2">
+            {gameState.flopCards.map((card, index) => (
+              <div key={index} className="w-10 h-14 bg-white rounded-lg shadow flex items-center justify-center">
+                <span className={`text-xl ${getCardColor(card.suit)}`}>
+                  {card.rank}{card.suit}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Pot Size */}
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-16 text-yellow-400 font-bold">
@@ -203,47 +204,23 @@ const TrialSimulator = () => {
                   </div>
                 </div>
 
-                {showGTO && (
-                  <div className="bg-indigo-900 p-4 rounded-lg">
-                    <h4 className="text-lg font-semibold text-white mb-2">GTO Recommendation</h4>
-                    <div className="space-y-2">
-                      {(() => {
-                        const strategy = calculateGTOStrategy(
-                          gameState.heroCards,
-                          selectedPosition,
-                          gameState.players.find(p => p.position === selectedPosition)?.stack
-                        );
-                        const bestAction = Object.entries(strategy).reduce((a, b) => a[1] > b[1] ? a : b);
-                        return (
-                          <div className="text-2xl text-center font-bold text-white">
-                            {bestAction[0].toUpperCase()} ({bestAction[1]}%)
-                          </div>
-                        );
-                      })()}
-                    </div>
-                  </div>
-                )}
-
-                <div className="bg-gray-700 p-4 rounded-lg">
-                  <div className="grid grid-cols-3 gap-2">
-                    <button 
-                      onClick={() => setShowGTO(true)}
-                      className="bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700"
-                    >
-                      Raise 2.5BB
-                    </button>
-                    <button 
-                      onClick={() => setShowGTO(true)}
-                      className="bg-yellow-600 text-white px-3 py-2 rounded hover:bg-yellow-700"
-                    >
-                      Call
-                    </button>
-                    <button 
-                      onClick={() => setShowGTO(true)}
-                      className="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700"
-                    >
-                      Fold
-                    </button>
+                <div className="bg-indigo-900 p-4 rounded-lg">
+                  <h4 className="text-lg font-semibold text-white mb-2">GTO Preflop Strategy</h4>
+                  <div className="space-y-2">
+                    {(() => {
+                      const strategy = calculateGTOStrategy(
+                        gameState.heroCards,
+                        selectedPosition,
+                        gameState.players.find(p => p.position === selectedPosition)?.stack
+                      );
+                      return (
+                        <div className="text-2xl text-center font-bold text-white space-y-2">
+                          <div>Raise: {strategy.raise}%</div>
+                          <div>Call: {strategy.call}%</div>
+                          <div>Fold: {strategy.fold}%</div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
@@ -251,7 +228,15 @@ const TrialSimulator = () => {
           </div>
         )}
 
-        <div className="fixed bottom-8 right-8">
+        <div className="fixed bottom-8 right-8 space-x-4">
+          {gameState && (
+            <button
+              onClick={() => setShowFlop(!showFlop)}
+              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-lg"
+            >
+              {showFlop ? 'Hide Flop' : 'Show Flop'}
+            </button>
+          )}
           <button
             onClick={dealNewHand}
             className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg"
