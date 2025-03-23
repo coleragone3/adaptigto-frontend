@@ -111,53 +111,64 @@ const TrialSimulator = () => {
   const renderPokerTable = () => {
     if (!gameState) return null;
 
+    // Calculate evenly spaced positions around the table
     const seatPositions = {
-      'UTG': 'top-[25%] left-[12%]',
-      'UTG+1': 'top-[10%] left-[28%]',
-      'MP': 'top-[5%] left-[45%]',
-      'MP+1': 'top-[5%] right-[45%]',
-      'HJ': 'top-[10%] right-[28%]',
-      'CO': 'top-[25%] right-[12%]',
-      'BTN': 'bottom-[25%] right-[12%]',
-      'SB': 'bottom-[10%] right-[28%]',
-      'BB': 'bottom-[5%] right-[45%]'
+      'UTG': 'top-[15%] left-[15%]',
+      'UTG+1': 'top-[8%] left-[35%]',
+      'MP': 'top-[8%] left-[55%]',
+      'MP+1': 'top-[8%] right-[35%]',
+      'HJ': 'top-[15%] right-[15%]',
+      'CO': 'bottom-[15%] right-[15%]',
+      'BTN': 'bottom-[8%] right-[35%]',
+      'SB': 'bottom-[8%] left-[35%]',
+      'BB': 'bottom-[15%] left-[15%]'
     };
 
+    // Position cards in front of seats
     const cardPositions = {
-      'UTG': '-top-14 left-1/2',
-      'UTG+1': '-top-14 left-1/2',
-      'MP': '-top-14 left-1/2',
-      'MP+1': '-top-14 left-1/2',
-      'HJ': '-top-14 left-1/2',
-      'CO': '-top-14 left-1/2',
-      'BTN': '-top-14 left-1/2',
-      'SB': '-top-14 left-1/2',
-      'BB': '-top-14 left-1/2'
+      'UTG': 'top-[120%] left-1/2',
+      'UTG+1': 'top-[120%] left-1/2',
+      'MP': 'top-[120%] left-1/2',
+      'MP+1': 'top-[120%] left-1/2',
+      'HJ': 'top-[120%] left-1/2',
+      'CO': 'top-[120%] left-1/2',
+      'BTN': 'top-[120%] left-1/2',
+      'SB': 'top-[120%] left-1/2',
+      'BB': 'top-[120%] left-1/2'
     };
 
+    // Inner circle for chip placement
     const chipPositions = {
-      'UTG': 'top-[40%] left-[25%]',
-      'UTG+1': 'top-[30%] left-[35%]',
-      'MP': 'top-[25%] left-[45%]',
-      'MP+1': 'top-[25%] right-[45%]',
-      'HJ': 'top-[30%] right-[35%]',
-      'CO': 'top-[40%] right-[25%]',
-      'BTN': 'bottom-[40%] right-[25%]',
-      'SB': 'bottom-[30%] right-[35%]',
-      'BB': 'bottom-[25%] right-[45%]'
+      'UTG': 'top-[35%] left-[25%]',
+      'UTG+1': 'top-[25%] left-[40%]',
+      'MP': 'top-[25%] left-[55%]',
+      'MP+1': 'top-[25%] right-[40%]',
+      'HJ': 'top-[35%] right-[25%]',
+      'CO': 'bottom-[35%] right-[25%]',
+      'BTN': 'bottom-[25%] right-[40%]',
+      'SB': 'bottom-[25%] left-[40%]',
+      'BB': 'bottom-[35%] left-[25%]'
     };
 
     // Calculate total pot including blinds and raises
     const calculatePotAndChips = () => {
       let chips = {};
       // Add small blind
-      chips['SB'] = { amount: 0.5, type: 'sb' };
+      chips['SB'] = { amount: 0.5, type: 'sb', stacks: [{ value: 0.5, color: 'bg-yellow-400' }] };
       // Add big blind
-      chips['BB'] = { amount: 1, type: 'bb' };
+      chips['BB'] = { amount: 1, type: 'bb', stacks: [{ value: 1, color: 'bg-yellow-500' }] };
       
       // Add raise if exists
       if (raisePosition) {
-        chips[raisePosition] = { amount: 3, type: 'raise' };
+        chips[raisePosition] = { 
+          amount: 3, 
+          type: 'raise',
+          stacks: [
+            { value: 1, color: 'bg-yellow-500' },
+            { value: 1, color: 'bg-yellow-500' },
+            { value: 1, color: 'bg-yellow-500' }
+          ]
+        };
       }
 
       return chips;
@@ -168,9 +179,9 @@ const TrialSimulator = () => {
     return (
       <div className="relative w-full max-w-4xl h-[340px] mx-auto mb-8">
         {/* Table felt */}
-        <div className="absolute inset-0 bg-emerald-600 rounded-[40%] shadow-2xl">
+        <div className="absolute inset-0 bg-emerald-600 rounded-[45%] shadow-2xl">
           {/* Table padding */}
-          <div className="absolute inset-4 bg-emerald-700 rounded-[40%] border-2 border-emerald-800">
+          <div className="absolute inset-4 bg-emerald-700 rounded-[45%] border-2 border-emerald-800">
             {/* Center/Community Cards */}
             {showFlop && (
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-2">
@@ -184,9 +195,20 @@ const TrialSimulator = () => {
               </div>
             )}
 
-            {/* Pot Size */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-16 text-white font-bold text-lg">
-              Pot: {gameState.potSize}BB
+            {/* Pot Size - Stacked Chips */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <div className="relative w-12 h-12">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className={`absolute w-12 h-12 rounded-full bg-yellow-500 border-2 border-yellow-600 shadow-xl
+                      ${i === 0 ? '-top-2' : i === 1 ? 'top-0' : 'top-2'}`}
+                  />
+                ))}
+                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 text-white font-bold text-sm">
+                  {gameState.potSize}BB
+                </div>
+              </div>
             </div>
 
             {/* Player Seats */}
@@ -195,38 +217,43 @@ const TrialSimulator = () => {
                 key={player.position}
                 className={`absolute ${seatPositions[player.position]}`}
               >
-                {/* Cards above player if it's the selected position */}
-                {player.position === selectedPosition && (
-                  <div className={`absolute ${cardPositions[player.position]} transform -translate-x-1/2 flex gap-1`}>
-                    {gameState.heroCards.map((card, idx) => (
-                      <div key={idx} className="w-8 h-12 bg-white rounded-sm flex items-center justify-center shadow-xl">
-                        <span className={`text-base ${getCardColor(card.suit)}`}>
-                          {card.rank}{card.suit}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                {/* Player position circle */}
+                <div className={`relative w-16 h-16 rounded-full flex flex-col items-center justify-center ${
+                  player.position === selectedPosition ? 'bg-blue-600' : 'bg-slate-700'
+                } border-2 ${player.position === selectedPosition ? 'border-blue-400' : 'border-slate-600'} shadow-lg`}>
+                  <div className="text-white font-bold text-sm">{player.position}</div>
+                  <div className="text-white text-xs">{player.stack} BB</div>
+
+                  {/* Cards in front of position */}
+                  {player.position === selectedPosition && (
+                    <div className={`absolute ${cardPositions[player.position]} transform -translate-x-1/2 flex gap-1 z-10`}>
+                      {gameState.heroCards.map((card, idx) => (
+                        <div key={idx} className="w-8 h-12 bg-white rounded-sm flex items-center justify-center shadow-xl">
+                          <span className={`text-base ${getCardColor(card.suit)}`}>
+                            {card.rank}{card.suit}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 {/* Chips on the felt */}
                 {chips[player.position] && (
                   <div className={`absolute ${chipPositions[player.position]} flex items-center justify-center`}>
-                    <div className={`w-10 h-10 rounded-full ${
-                      chips[player.position].type === 'sb' ? 'bg-sky-500 border-sky-600' :
-                      chips[player.position].type === 'bb' ? 'bg-rose-500 border-rose-600' :
-                      'bg-amber-500 border-amber-600'
-                    } border-2 shadow-xl flex items-center justify-center text-white font-bold text-xs`}>
-                      {chips[player.position].amount}BB
+                    <div className="relative w-10 h-10">
+                      {chips[player.position].stacks.map((chip, i) => (
+                        <div
+                          key={i}
+                          className={`absolute w-10 h-10 rounded-full ${chip.color} border-2 border-yellow-600 shadow-xl flex items-center justify-center text-white font-bold text-xs
+                            ${i === 0 ? 'top-0' : i === 1 ? '-top-2' : '-top-4'}`}
+                        >
+                          {i === 0 && chip.value + 'BB'}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
-
-                <div className={`w-18 h-18 rounded-full flex flex-col items-center justify-center ${
-                  player.position === selectedPosition ? 'bg-blue-600' : 'bg-slate-700'
-                } border-2 ${player.position === selectedPosition ? 'border-blue-400' : 'border-slate-600'} shadow-lg`}>
-                  <div className="text-white font-bold text-sm mb-1">{player.position}</div>
-                  <div className="text-white text-xs">{player.stack} BB</div>
-                </div>
               </div>
             ))}
           </div>
