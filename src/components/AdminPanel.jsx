@@ -18,7 +18,6 @@ const AdminPanel = () => {
   const { getToken } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedUser, setSelectedUser] = useState(null);
   const [error, setError] = useState(null);
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -33,8 +32,9 @@ const AdminPanel = () => {
 
   // Check if the current user is authorized
   useEffect(() => {
-    if (user?.primaryEmailAddress?.emailAddress !== 'coleragone@gmail.com') {
+    if (!user || user?.primaryEmailAddress?.emailAddress !== 'coleragone@gmail.com') {
       navigate('/');
+      return;
     }
   }, [user, navigate]);
 
@@ -46,6 +46,10 @@ const AdminPanel = () => {
         setError(null);
         
         const token = await getToken();
+        if (!token) {
+          throw new Error('No authentication token available');
+        }
+
         console.log('Admin token received:', token ? 'Token exists' : 'No token');
         console.log('Using API URL:', API_URL);
         
@@ -74,7 +78,7 @@ const AdminPanel = () => {
           usersResponse.json(),
           visitsResponse.json()
         ]);
-        
+
         if (!Array.isArray(usersData)) {
           throw new Error('Invalid users response format');
         }
@@ -108,6 +112,10 @@ const AdminPanel = () => {
   const handleBlockUser = async (userId, shouldBlock) => {
     try {
       const token = await getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
       const response = await fetch(`${API_URL}/api/admin/users/${userId}/${shouldBlock ? 'block' : 'unblock'}`, {
         method: 'POST',
         headers: {
@@ -135,65 +143,78 @@ const AdminPanel = () => {
     }
   };
 
-  if (loading) return <div className="p-4">Loading...</div>;
-  if (error) return <div className="p-4 text-red-600">Error: {error}</div>;
+  if (!user || user?.primaryEmailAddress?.emailAddress !== 'coleragone@gmail.com') {
+    return null;
+  }
+
+  if (loading) return (
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div className="text-white">Loading...</div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div className="text-red-400">Error: {error}</div>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-900 py-6 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-6">Admin Dashboard</h1>
+        <h1 className="text-2xl font-semibold text-white mb-6">Admin Dashboard</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {/* Total Users */}
-          <div className="bg-white p-6 rounded-lg shadow">
+          <div className="bg-gray-800 p-6 rounded-lg shadow border border-gray-700">
             <div className="flex items-center">
-              <UsersIcon className="h-8 w-8 text-blue-500" />
+              <UsersIcon className="h-8 w-8 text-blue-400" />
               <div className="ml-4">
-                <p className="text-sm text-gray-600">Total Users</p>
-                <p className="text-2xl font-semibold">{stats.totalUsers}</p>
+                <p className="text-sm text-gray-400">Total Users</p>
+                <p className="text-2xl font-semibold text-white">{stats.totalUsers}</p>
               </div>
             </div>
           </div>
 
           {/* Active Users */}
-          <div className="bg-white p-6 rounded-lg shadow">
+          <div className="bg-gray-800 p-6 rounded-lg shadow border border-gray-700">
             <div className="flex items-center">
-              <UserGroupIcon className="h-8 w-8 text-green-500" />
+              <UserGroupIcon className="h-8 w-8 text-green-400" />
               <div className="ml-4">
-                <p className="text-sm text-gray-600">Active Users</p>
-                <p className="text-2xl font-semibold">{stats.activeUsers}</p>
+                <p className="text-sm text-gray-400">Active Users</p>
+                <p className="text-2xl font-semibold text-white">{stats.activeUsers}</p>
               </div>
             </div>
           </div>
 
           {/* New Users Today */}
-          <div className="bg-white p-6 rounded-lg shadow">
+          <div className="bg-gray-800 p-6 rounded-lg shadow border border-gray-700">
             <div className="flex items-center">
-              <ClockIcon className="h-8 w-8 text-purple-500" />
+              <ClockIcon className="h-8 w-8 text-purple-400" />
               <div className="ml-4">
-                <p className="text-sm text-gray-600">New Users Today</p>
-                <p className="text-2xl font-semibold">{stats.newUsersToday}</p>
+                <p className="text-sm text-gray-400">New Users Today</p>
+                <p className="text-2xl font-semibold text-white">{stats.newUsersToday}</p>
               </div>
             </div>
           </div>
 
           {/* Total Visits */}
-          <div className="bg-white p-6 rounded-lg shadow">
+          <div className="bg-gray-800 p-6 rounded-lg shadow border border-gray-700">
             <div className="flex items-center">
-              <ChartBarIcon className="h-8 w-8 text-orange-500" />
+              <ChartBarIcon className="h-8 w-8 text-orange-400" />
               <div className="ml-4">
-                <p className="text-sm text-gray-600">Website Visits</p>
-                <p className="text-2xl font-semibold">{stats.visits.total}</p>
-                <p className="text-sm text-gray-500">Today: {stats.visits.today}</p>
+                <p className="text-sm text-gray-400">Website Visits</p>
+                <p className="text-2xl font-semibold text-white">{stats.visits.total}</p>
+                <p className="text-sm text-gray-400">Today: {stats.visits.today}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Users Table */}
-        <div className="mt-8 bg-white shadow overflow-hidden sm:rounded-lg">
-          <div className="px-4 py-5 sm:px-6 flex justify-between items-center flex-wrap gap-4">
-            <h2 className="text-lg leading-6 font-medium text-gray-900">User Management</h2>
+        <div className="bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-700">
+          <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
+            <h2 className="text-lg font-medium text-white">User Management</h2>
             <button
               onClick={() => window.location.reload()}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -203,48 +224,48 @@ const AdminPanel = () => {
           </div>
           
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-700">
+              <thead className="bg-gray-700">
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                     User
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                     Email
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                     Status
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-gray-800 divide-y divide-gray-700">
                 {users.map((user) => (
                   <tr key={user.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-white">
                         {user.firstName} {user.lastName}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">{user.emailAddresses[0]?.emailAddress}</div>
+                      <div className="text-sm text-gray-300">{user.email}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        user.blocked ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                        user.blocked ? 'bg-red-900 text-red-200' : 'bg-green-900 text-green-200'
                       }`}>
                         {user.blocked ? 'Blocked' : 'Active'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                       <button
                         onClick={() => handleBlockUser(user.id, !user.blocked)}
                         className={`inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md ${
                           user.blocked
-                            ? 'text-green-700 bg-green-100 hover:bg-green-200'
-                            : 'text-red-700 bg-red-100 hover:bg-red-200'
+                            ? 'text-green-200 bg-green-900 hover:bg-green-800'
+                            : 'text-red-200 bg-red-900 hover:bg-red-800'
                         }`}
                       >
                         {user.blocked ? 'Unblock' : 'Block'}
