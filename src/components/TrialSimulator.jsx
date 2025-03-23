@@ -112,39 +112,39 @@ const TrialSimulator = () => {
     if (!gameState) return null;
 
     const seatPositions = {
-      'UTG': 'top-[20%] left-[10%]',
-      'UTG+1': 'top-[8%] left-[25%]',
-      'MP': 'top-[3%] left-[40%]',
-      'MP+1': 'top-[3%] right-[40%]',
-      'HJ': 'top-[8%] right-[25%]',
-      'CO': 'top-[20%] right-[10%]',
-      'BTN': 'bottom-[20%] right-[10%]',
-      'SB': 'bottom-[8%] right-[25%]',
-      'BB': 'bottom-[3%] right-[40%]'
+      'UTG': 'top-[25%] left-[12%]',
+      'UTG+1': 'top-[10%] left-[28%]',
+      'MP': 'top-[5%] left-[45%]',
+      'MP+1': 'top-[5%] right-[45%]',
+      'HJ': 'top-[10%] right-[28%]',
+      'CO': 'top-[25%] right-[12%]',
+      'BTN': 'bottom-[25%] right-[12%]',
+      'SB': 'bottom-[10%] right-[28%]',
+      'BB': 'bottom-[5%] right-[45%]'
     };
 
     const cardPositions = {
-      'UTG': '-top-16 left-1/2',
-      'UTG+1': '-top-16 left-1/2',
-      'MP': '-top-16 left-1/2',
-      'MP+1': '-top-16 left-1/2',
-      'HJ': '-top-16 left-1/2',
-      'CO': '-top-16 left-1/2',
-      'BTN': '-top-16 left-1/2',
-      'SB': '-top-16 left-1/2',
-      'BB': '-top-16 left-1/2'
+      'UTG': '-top-14 left-1/2',
+      'UTG+1': '-top-14 left-1/2',
+      'MP': '-top-14 left-1/2',
+      'MP+1': '-top-14 left-1/2',
+      'HJ': '-top-14 left-1/2',
+      'CO': '-top-14 left-1/2',
+      'BTN': '-top-14 left-1/2',
+      'SB': '-top-14 left-1/2',
+      'BB': '-top-14 left-1/2'
     };
 
     const chipPositions = {
-      'UTG': 'top-[45%] left-[25%]',
-      'UTG+1': 'top-[35%] left-[35%]',
-      'MP': 'top-[30%] left-[45%]',
-      'MP+1': 'top-[30%] right-[45%]',
-      'HJ': 'top-[35%] right-[35%]',
-      'CO': 'top-[45%] right-[25%]',
-      'BTN': 'bottom-[45%] right-[25%]',
-      'SB': 'bottom-[35%] right-[35%]',
-      'BB': 'bottom-[30%] right-[45%]'
+      'UTG': 'top-[40%] left-[25%]',
+      'UTG+1': 'top-[30%] left-[35%]',
+      'MP': 'top-[25%] left-[45%]',
+      'MP+1': 'top-[25%] right-[45%]',
+      'HJ': 'top-[30%] right-[35%]',
+      'CO': 'top-[40%] right-[25%]',
+      'BTN': 'bottom-[40%] right-[25%]',
+      'SB': 'bottom-[30%] right-[35%]',
+      'BB': 'bottom-[25%] right-[45%]'
     };
 
     // Calculate total pot including blinds and raises
@@ -166,37 +166,17 @@ const TrialSimulator = () => {
     const chips = calculatePotAndChips();
 
     return (
-      <div className="relative w-full max-w-4xl h-[300px] mx-auto bg-green-800 rounded-[60%] border-8 border-brown-800 mb-8">
-        {/* Center/Community Cards */}
-        {showFlop && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-2">
-            {gameState.flopCards.map((card, index) => (
-              <div key={index} className="w-10 h-14 bg-white rounded-lg shadow flex items-center justify-center">
-                <span className={`text-xl ${getCardColor(card.suit)}`}>
-                  {card.rank}{card.suit}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Pot Size */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-16 text-yellow-400 font-bold">
-          Pot: {gameState.potSize}BB
-        </div>
-
-        {/* Player Seats */}
-        {gameState.players.map((player) => (
-          <div
-            key={player.position}
-            className={`absolute ${seatPositions[player.position]}`}
-          >
-            {/* Cards above player if it's the selected position */}
-            {player.position === selectedPosition && (
-              <div className={`absolute ${cardPositions[player.position]} transform -translate-x-1/2 flex gap-1`}>
-                {gameState.heroCards.map((card, idx) => (
-                  <div key={idx} className="w-8 h-12 bg-white rounded-sm flex items-center justify-center shadow-lg">
-                    <span className={`text-base ${getCardColor(card.suit)}`}>
+      <div className="relative w-full max-w-4xl h-[340px] mx-auto mb-8">
+        {/* Table felt */}
+        <div className="absolute inset-0 bg-emerald-600 rounded-[40%] shadow-2xl">
+          {/* Table padding */}
+          <div className="absolute inset-4 bg-emerald-700 rounded-[40%] border-2 border-emerald-800">
+            {/* Center/Community Cards */}
+            {showFlop && (
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-2">
+                {gameState.flopCards.map((card, index) => (
+                  <div key={index} className="w-10 h-14 bg-white rounded-lg shadow-xl flex items-center justify-center">
+                    <span className={`text-xl ${getCardColor(card.suit)}`}>
                       {card.rank}{card.suit}
                     </span>
                   </div>
@@ -204,27 +184,53 @@ const TrialSimulator = () => {
               </div>
             )}
 
-            {/* Chips on the felt */}
-            {chips[player.position] && (
-              <div className={`absolute ${chipPositions[player.position]} flex items-center justify-center`}>
-                <div className={`w-10 h-10 rounded-full ${
-                  chips[player.position].type === 'sb' ? 'bg-blue-500 border-blue-600' :
-                  chips[player.position].type === 'bb' ? 'bg-red-500 border-red-600' :
-                  'bg-yellow-500 border-yellow-600'
-                } border-2 shadow-lg flex items-center justify-center text-white font-bold text-xs`}>
-                  {chips[player.position].amount}BB
+            {/* Pot Size */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-16 text-white font-bold text-lg">
+              Pot: {gameState.potSize}BB
+            </div>
+
+            {/* Player Seats */}
+            {gameState.players.map((player) => (
+              <div
+                key={player.position}
+                className={`absolute ${seatPositions[player.position]}`}
+              >
+                {/* Cards above player if it's the selected position */}
+                {player.position === selectedPosition && (
+                  <div className={`absolute ${cardPositions[player.position]} transform -translate-x-1/2 flex gap-1`}>
+                    {gameState.heroCards.map((card, idx) => (
+                      <div key={idx} className="w-8 h-12 bg-white rounded-sm flex items-center justify-center shadow-xl">
+                        <span className={`text-base ${getCardColor(card.suit)}`}>
+                          {card.rank}{card.suit}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Chips on the felt */}
+                {chips[player.position] && (
+                  <div className={`absolute ${chipPositions[player.position]} flex items-center justify-center`}>
+                    <div className={`w-10 h-10 rounded-full ${
+                      chips[player.position].type === 'sb' ? 'bg-sky-500 border-sky-600' :
+                      chips[player.position].type === 'bb' ? 'bg-rose-500 border-rose-600' :
+                      'bg-amber-500 border-amber-600'
+                    } border-2 shadow-xl flex items-center justify-center text-white font-bold text-xs`}>
+                      {chips[player.position].amount}BB
+                    </div>
+                  </div>
+                )}
+
+                <div className={`w-18 h-18 rounded-full flex flex-col items-center justify-center ${
+                  player.position === selectedPosition ? 'bg-blue-600' : 'bg-slate-700'
+                } border-2 ${player.position === selectedPosition ? 'border-blue-400' : 'border-slate-600'} shadow-lg`}>
+                  <div className="text-white font-bold text-sm mb-1">{player.position}</div>
+                  <div className="text-white text-xs">{player.stack} BB</div>
                 </div>
               </div>
-            )}
-
-            <div className={`w-20 h-20 rounded-full flex flex-col items-center justify-center ${
-              player.position === selectedPosition ? 'bg-blue-900' : 'bg-gray-800'
-            } border-4 ${player.position === selectedPosition ? 'border-blue-500' : 'border-gray-700'}`}>
-              <div className="text-white font-bold text-sm mb-1">{player.position}</div>
-              <div className="text-yellow-400 text-xs">{player.stack} BB</div>
-            </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
     );
   };
@@ -239,32 +245,44 @@ const TrialSimulator = () => {
     );
 
     return (
-      <div className="bg-gray-800 rounded-lg p-6 mt-8">
-        <h4 className="text-lg font-semibold text-white mb-4">GTO Preflop Strategy</h4>
-        <div className="flex items-end h-32 gap-4">
-          <div className="flex-1 flex flex-col items-center">
-            <div 
-              className="w-full bg-green-600 rounded-t"
-              style={{ height: `${strategy.raise}%` }}
-            />
-            <div className="mt-2 text-white font-bold">{strategy.raise}%</div>
-            <div className="text-gray-400 text-sm">Raise</div>
+      <div className="bg-white rounded-xl shadow-xl p-6 mt-8">
+        <h4 className="text-lg font-semibold text-gray-800 mb-6">GTO Preflop Strategy</h4>
+        <div className="space-y-4">
+          <div className="relative pt-1">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-sm font-medium text-gray-700">Raise</div>
+              <div className="text-sm font-semibold text-gray-900">{strategy.raise}%</div>
+            </div>
+            <div className="overflow-hidden h-2 text-xs flex rounded bg-gray-100">
+              <div
+                style={{ width: `${strategy.raise}%` }}
+                className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-emerald-500"
+              />
+            </div>
           </div>
-          <div className="flex-1 flex flex-col items-center">
-            <div 
-              className="w-full bg-yellow-600 rounded-t"
-              style={{ height: `${strategy.call}%` }}
-            />
-            <div className="mt-2 text-white font-bold">{strategy.call}%</div>
-            <div className="text-gray-400 text-sm">Call</div>
+          <div className="relative pt-1">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-sm font-medium text-gray-700">Call</div>
+              <div className="text-sm font-semibold text-gray-900">{strategy.call}%</div>
+            </div>
+            <div className="overflow-hidden h-2 text-xs flex rounded bg-gray-100">
+              <div
+                style={{ width: `${strategy.call}%` }}
+                className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-amber-500"
+              />
+            </div>
           </div>
-          <div className="flex-1 flex flex-col items-center">
-            <div 
-              className="w-full bg-red-600 rounded-t"
-              style={{ height: `${strategy.fold}%` }}
-            />
-            <div className="mt-2 text-white font-bold">{strategy.fold}%</div>
-            <div className="text-gray-400 text-sm">Fold</div>
+          <div className="relative pt-1">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-sm font-medium text-gray-700">Fold</div>
+              <div className="text-sm font-semibold text-gray-900">{strategy.fold}%</div>
+            </div>
+            <div className="overflow-hidden h-2 text-xs flex rounded bg-gray-100">
+              <div
+                style={{ width: `${strategy.fold}%` }}
+                className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-rose-500"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -272,41 +290,59 @@ const TrialSimulator = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <button
             onClick={() => navigate('/')}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-gray-300 hover:text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
           >
             ← Back to Home
           </button>
         </div>
 
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
-            Poker Table Simulator
-          </h2>
-          <p className="mt-3 text-xl text-gray-300">
-            Experience real-time GTO analysis in a familiar table setting
-          </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+          <div>
+            <h2 className="text-4xl font-bold text-gray-900 sm:text-5xl mb-4">
+              Poker Table Simulator
+            </h2>
+            <p className="text-xl text-gray-600">
+              Experience real-time GTO analysis in a familiar table setting. Practice optimal preflop decisions with instant feedback.
+            </p>
+          </div>
+          <div className="flex items-center justify-center">
+            <img 
+              src="https://images.unsplash.com/photo-1609743522653-52354461eb27?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+              alt="Poker Analytics"
+              className="rounded-xl shadow-2xl"
+            />
+          </div>
         </div>
 
         {renderPokerTable()}
-        {renderGTOBarChart()}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {renderGTOBarChart()}
+          <div className="bg-white rounded-xl shadow-xl p-6 mt-8">
+            <h4 className="text-lg font-semibold text-gray-800 mb-4">Position Info</h4>
+            <p className="text-gray-600">
+              You are in position {selectedPosition} with {gameState?.players.find(p => p.position === selectedPosition)?.stack}BB.
+              {raisePosition && ` There was a raise from ${raisePosition}.`}
+            </p>
+          </div>
+        </div>
 
         <div className="fixed bottom-8 right-8 space-x-4">
           {gameState && (
             <button
               onClick={() => setShowFlop(!showFlop)}
-              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-lg"
+              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400 shadow-lg"
             >
               {showFlop ? 'Hide Flop' : 'Show Flop'}
             </button>
           )}
           <button
             onClick={dealNewHand}
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg"
+            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 shadow-lg"
           >
             Deal New Hand
           </button>
