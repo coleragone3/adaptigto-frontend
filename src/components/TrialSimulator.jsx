@@ -42,16 +42,20 @@ const TrialSimulator = () => {
     const flop3 = generateRandomCard(usedCards);
     usedCards.push(flop3);
 
+    // Randomly select position
+    const randomPosition = POSITIONS[Math.floor(Math.random() * POSITIONS.length)];
+
     setGameState({
       heroCards: [card1, card2],
       flopCards: [flop1, flop2, flop3],
-      potSize: 3, // Starting pot size in BB
+      potSize: 3,
       players: POSITIONS.map(pos => ({
         position: pos,
-        stack: Math.floor(Math.random() * (200 - 80) + 80), // Random stack between 80-200 BB
+        stack: Math.floor(Math.random() * (200 - 80) + 80),
         hasCards: true
       }))
     });
+    setSelectedPosition(randomPosition);
     setShowGTO(false);
   };
 
@@ -101,24 +105,24 @@ const TrialSimulator = () => {
     if (!gameState) return null;
 
     const seatPositions = {
-      'UTG': 'top-1/4 left-0',
-      'UTG+1': 'top-0 left-1/4',
-      'MP': 'top-0 left-1/2',
-      'MP+1': 'top-0 right-1/4',
-      'HJ': 'top-1/4 right-0',
-      'CO': 'bottom-1/4 right-0',
-      'BTN': 'bottom-0 right-1/4',
-      'SB': 'bottom-0 left-1/4',
-      'BB': 'bottom-1/4 left-0'
+      'UTG': 'top-[15%] left-[15%]',
+      'UTG+1': 'top-[5%] left-[35%]',
+      'MP': 'top-[5%] left-[50%]',
+      'MP+1': 'top-[5%] right-[35%]',
+      'HJ': 'top-[15%] right-[15%]',
+      'CO': 'bottom-[15%] right-[15%]',
+      'BTN': 'bottom-[5%] right-[35%]',
+      'SB': 'bottom-[5%] left-[35%]',
+      'BB': 'bottom-[15%] left-[15%]'
     };
 
     return (
-      <div className="relative w-full h-[600px] bg-green-800 rounded-full border-8 border-brown-800 mb-8">
+      <div className="relative w-full max-w-2xl h-[400px] mx-auto bg-green-800 rounded-full border-8 border-brown-800 mb-8">
         {/* Center/Community Cards */}
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-2">
           {gameState.flopCards.map((card, index) => (
-            <div key={index} className="w-14 h-20 bg-white rounded-lg shadow flex items-center justify-center">
-              <span className={`text-2xl ${getCardColor(card.suit)}`}>
+            <div key={index} className="w-10 h-14 bg-white rounded-lg shadow flex items-center justify-center">
+              <span className={`text-xl ${getCardColor(card.suit)}`}>
                 {card.rank}{card.suit}
               </span>
             </div>
@@ -126,26 +130,26 @@ const TrialSimulator = () => {
         </div>
 
         {/* Pot Size */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-24 text-yellow-400 font-bold">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-16 text-yellow-400 font-bold">
           Pot: {gameState.potSize}BB
         </div>
 
         {/* Player Seats */}
-        {gameState.players.map((player, index) => (
+        {gameState.players.map((player) => (
           <div
             key={player.position}
-            className={`absolute ${seatPositions[player.position]} transform -translate-x-1/2 -translate-y-1/2`}
+            className={`absolute ${seatPositions[player.position]}`}
           >
-            <div className={`w-32 h-32 rounded-full flex flex-col items-center justify-center ${
+            <div className={`w-24 h-24 rounded-full flex flex-col items-center justify-center ${
               player.position === selectedPosition ? 'bg-blue-900' : 'bg-gray-800'
             } border-4 ${player.position === selectedPosition ? 'border-blue-500' : 'border-gray-700'}`}>
-              <div className="text-white font-bold mb-1">{player.position}</div>
-              <div className="text-yellow-400 text-sm">{player.stack} BB</div>
+              <div className="text-white font-bold text-sm mb-1">{player.position}</div>
+              <div className="text-yellow-400 text-xs">{player.stack} BB</div>
               {player.position === selectedPosition && (
-                <div className="mt-2 flex gap-1">
+                <div className="mt-1 flex gap-1">
                   {gameState.heroCards.map((card, idx) => (
-                    <div key={idx} className="w-8 h-12 bg-white rounded-sm flex items-center justify-center">
-                      <span className={`text-lg ${getCardColor(card.suit)}`}>
+                    <div key={idx} className="w-6 h-9 bg-white rounded-sm flex items-center justify-center">
+                      <span className={`text-sm ${getCardColor(card.suit)}`}>
                         {card.rank}{card.suit}
                       </span>
                     </div>
@@ -180,24 +184,14 @@ const TrialSimulator = () => {
           </p>
         </div>
 
-        <div className="mb-8 flex justify-center">
-          <button
-            onClick={dealNewHand}
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            Deal New Hand
-          </button>
-        </div>
-
         {renderPokerTable()}
 
         {gameState && (
           <div className="bg-gray-800 rounded-lg p-6 mt-8">
-            <h3 className="text-xl font-bold text-white mb-4">GTO Analysis</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
               <div className="space-y-4">
                 <div className="bg-gray-700 p-4 rounded-lg">
-                  <h4 className="text-lg font-semibold text-white mb-2">Your Hand</h4>
+                  <h4 className="text-lg font-semibold text-white mb-2">Your Hand ({selectedPosition})</h4>
                   <div className="flex gap-4 justify-center">
                     {gameState.heroCards.map((card, index) => (
                       <div key={index} className="w-14 h-20 bg-white rounded-lg shadow flex items-center justify-center">
@@ -209,8 +203,28 @@ const TrialSimulator = () => {
                   </div>
                 </div>
 
+                {showGTO && (
+                  <div className="bg-indigo-900 p-4 rounded-lg">
+                    <h4 className="text-lg font-semibold text-white mb-2">GTO Recommendation</h4>
+                    <div className="space-y-2">
+                      {(() => {
+                        const strategy = calculateGTOStrategy(
+                          gameState.heroCards,
+                          selectedPosition,
+                          gameState.players.find(p => p.position === selectedPosition)?.stack
+                        );
+                        const bestAction = Object.entries(strategy).reduce((a, b) => a[1] > b[1] ? a : b);
+                        return (
+                          <div className="text-2xl text-center font-bold text-white">
+                            {bestAction[0].toUpperCase()} ({bestAction[1]}%)
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                )}
+
                 <div className="bg-gray-700 p-4 rounded-lg">
-                  <h4 className="text-lg font-semibold text-white mb-2">Position: {selectedPosition}</h4>
                   <div className="grid grid-cols-3 gap-2">
                     <button 
                       onClick={() => setShowGTO(true)}
@@ -233,40 +247,18 @@ const TrialSimulator = () => {
                   </div>
                 </div>
               </div>
-
-              {showGTO && (
-                <div className="bg-indigo-900 p-4 rounded-lg">
-                  <h4 className="text-lg font-semibold text-white mb-2">GTO Recommendation</h4>
-                  <div className="space-y-2">
-                    {(() => {
-                      const strategy = calculateGTOStrategy(
-                        gameState.heroCards,
-                        selectedPosition,
-                        gameState.players.find(p => p.position === selectedPosition)?.stack
-                      );
-                      return (
-                        <>
-                          <p className="text-gray-300">
-                            Raise 2.5BB: {strategy.raise}%
-                          </p>
-                          <p className="text-gray-300">
-                            Call: {strategy.call}%
-                          </p>
-                          <p className="text-gray-300">
-                            Fold: {strategy.fold}%
-                          </p>
-                          <div className="mt-4 text-sm text-gray-400">
-                            Based on: Position, Stack Depth, and Hand Strength
-                          </div>
-                        </>
-                      );
-                    })()}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         )}
+
+        <div className="fixed bottom-8 right-8">
+          <button
+            onClick={dealNewHand}
+            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg"
+          >
+            Deal New Hand
+          </button>
+        </div>
       </div>
     </div>
   );
