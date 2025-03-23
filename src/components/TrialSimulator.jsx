@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useUser } from '@clerk/clerk-react';
+import { useNavigate } from 'react-router-dom';
 
 const CARDS = {
   ranks: ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'],
@@ -10,6 +11,7 @@ const POSITIONS = ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
 
 const TrialSimulator = () => {
   const { user } = useUser();
+  const navigate = useNavigate();
   const [showGTO, setShowGTO] = useState(false);
   const [gameState, setGameState] = useState(null);
   const [selectedPosition, setSelectedPosition] = useState(null);
@@ -84,6 +86,15 @@ const TrialSimulator = () => {
   return (
     <div className="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <button
+            onClick={() => navigate('/')}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-gray-300 hover:text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700"
+          >
+            ← Back to Home
+          </button>
+        </div>
+
         <div className="text-center mb-12">
           <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
             Try AdaptGTO
