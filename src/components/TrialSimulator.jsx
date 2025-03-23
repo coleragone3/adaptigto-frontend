@@ -112,31 +112,61 @@ const TrialSimulator = () => {
     if (!gameState) return null;
 
     const seatPositions = {
-      'UTG': 'top-[15%] left-[15%]',
-      'UTG+1': 'top-[5%] left-[35%]',
-      'MP': 'top-[5%] left-[50%]',
-      'MP+1': 'top-[5%] right-[35%]',
-      'HJ': 'top-[15%] right-[15%]',
-      'CO': 'bottom-[15%] right-[15%]',
-      'BTN': 'bottom-[5%] right-[35%]',
-      'SB': 'bottom-[5%] left-[35%]',
-      'BB': 'bottom-[15%] left-[15%]'
+      'UTG': 'top-[20%] left-[10%]',
+      'UTG+1': 'top-[8%] left-[25%]',
+      'MP': 'top-[3%] left-[40%]',
+      'MP+1': 'top-[3%] right-[40%]',
+      'HJ': 'top-[8%] right-[25%]',
+      'CO': 'top-[20%] right-[10%]',
+      'BTN': 'bottom-[20%] right-[10%]',
+      'SB': 'bottom-[8%] right-[25%]',
+      'BB': 'bottom-[3%] right-[40%]'
+    };
+
+    const cardPositions = {
+      'UTG': '-top-16 left-1/2',
+      'UTG+1': '-top-16 left-1/2',
+      'MP': '-top-16 left-1/2',
+      'MP+1': '-top-16 left-1/2',
+      'HJ': '-top-16 left-1/2',
+      'CO': '-top-16 left-1/2',
+      'BTN': '-top-16 left-1/2',
+      'SB': '-top-16 left-1/2',
+      'BB': '-top-16 left-1/2'
     };
 
     const chipPositions = {
-      'UTG': 'top-[25%] left-[20%]',
-      'UTG+1': 'top-[15%] left-[35%]',
-      'MP': 'top-[15%] left-[50%]',
-      'MP+1': 'top-[15%] right-[35%]',
-      'HJ': 'top-[25%] right-[20%]',
-      'CO': 'bottom-[25%] right-[20%]',
-      'BTN': 'bottom-[15%] right-[35%]',
-      'SB': 'bottom-[15%] left-[35%]',
-      'BB': 'bottom-[25%] left-[20%]'
+      'UTG': 'top-[45%] left-[25%]',
+      'UTG+1': 'top-[35%] left-[35%]',
+      'MP': 'top-[30%] left-[45%]',
+      'MP+1': 'top-[30%] right-[45%]',
+      'HJ': 'top-[35%] right-[35%]',
+      'CO': 'top-[45%] right-[25%]',
+      'BTN': 'bottom-[45%] right-[25%]',
+      'SB': 'bottom-[35%] right-[35%]',
+      'BB': 'bottom-[30%] right-[45%]'
     };
 
+    // Calculate total pot including blinds and raises
+    const calculatePotAndChips = () => {
+      let chips = {};
+      // Add small blind
+      chips['SB'] = { amount: 0.5, type: 'sb' };
+      // Add big blind
+      chips['BB'] = { amount: 1, type: 'bb' };
+      
+      // Add raise if exists
+      if (raisePosition) {
+        chips[raisePosition] = { amount: 3, type: 'raise' };
+      }
+
+      return chips;
+    };
+
+    const chips = calculatePotAndChips();
+
     return (
-      <div className="relative w-full max-w-2xl h-[400px] mx-auto bg-green-800 rounded-full border-8 border-brown-800 mb-8">
+      <div className="relative w-full max-w-4xl h-[300px] mx-auto bg-green-800 rounded-[60%] border-8 border-brown-800 mb-8">
         {/* Center/Community Cards */}
         {showFlop && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-2">
@@ -163,7 +193,7 @@ const TrialSimulator = () => {
           >
             {/* Cards above player if it's the selected position */}
             {player.position === selectedPosition && (
-              <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 flex gap-1">
+              <div className={`absolute ${cardPositions[player.position]} transform -translate-x-1/2 flex gap-1`}>
                 {gameState.heroCards.map((card, idx) => (
                   <div key={idx} className="w-8 h-12 bg-white rounded-sm flex items-center justify-center shadow-lg">
                     <span className={`text-base ${getCardColor(card.suit)}`}>
@@ -174,16 +204,20 @@ const TrialSimulator = () => {
               </div>
             )}
 
-            {/* Chips in front of raiser */}
-            {player.position === raisePosition && (
+            {/* Chips on the felt */}
+            {chips[player.position] && (
               <div className={`absolute ${chipPositions[player.position]} flex items-center justify-center`}>
-                <div className="w-8 h-8 rounded-full bg-yellow-500 border-2 border-yellow-600 shadow-lg flex items-center justify-center text-black font-bold text-xs">
-                  3BB
+                <div className={`w-10 h-10 rounded-full ${
+                  chips[player.position].type === 'sb' ? 'bg-blue-500 border-blue-600' :
+                  chips[player.position].type === 'bb' ? 'bg-red-500 border-red-600' :
+                  'bg-yellow-500 border-yellow-600'
+                } border-2 shadow-lg flex items-center justify-center text-white font-bold text-xs`}>
+                  {chips[player.position].amount}BB
                 </div>
               </div>
             )}
 
-            <div className={`w-24 h-24 rounded-full flex flex-col items-center justify-center ${
+            <div className={`w-20 h-20 rounded-full flex flex-col items-center justify-center ${
               player.position === selectedPosition ? 'bg-blue-900' : 'bg-gray-800'
             } border-4 ${player.position === selectedPosition ? 'border-blue-500' : 'border-gray-700'}`}>
               <div className="text-white font-bold text-sm mb-1">{player.position}</div>
