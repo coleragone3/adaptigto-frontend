@@ -15,6 +15,7 @@ const TrialSimulator = () => {
   const [showFlop, setShowFlop] = useState(false);
   const [gameState, setGameState] = useState(null);
   const [selectedPosition, setSelectedPosition] = useState('BTN');
+  const [raisePosition, setRaisePosition] = useState(null);
 
   const generateRandomCard = (usedCards = []) => {
     let card;
@@ -45,6 +46,12 @@ const TrialSimulator = () => {
     // Randomly select position
     const randomPosition = POSITIONS[Math.floor(Math.random() * POSITIONS.length)];
 
+    // Randomly select a position that raised before us
+    const possibleRaisers = POSITIONS.slice(0, POSITIONS.indexOf(randomPosition));
+    const raiser = possibleRaisers.length > 0 ? 
+      possibleRaisers[Math.floor(Math.random() * possibleRaisers.length)] : 
+      null;
+
     setGameState({
       heroCards: [card1, card2],
       flopCards: [flop1, flop2, flop3],
@@ -56,6 +63,7 @@ const TrialSimulator = () => {
       }))
     });
     setSelectedPosition(randomPosition);
+    setRaisePosition(raiser);
     setShowFlop(false);
   };
 
@@ -115,6 +123,18 @@ const TrialSimulator = () => {
       'BB': 'bottom-[15%] left-[15%]'
     };
 
+    const chipPositions = {
+      'UTG': 'top-[25%] left-[20%]',
+      'UTG+1': 'top-[15%] left-[35%]',
+      'MP': 'top-[15%] left-[50%]',
+      'MP+1': 'top-[15%] right-[35%]',
+      'HJ': 'top-[25%] right-[20%]',
+      'CO': 'bottom-[25%] right-[20%]',
+      'BTN': 'bottom-[15%] right-[35%]',
+      'SB': 'bottom-[15%] left-[35%]',
+      'BB': 'bottom-[25%] left-[20%]'
+    };
+
     return (
       <div className="relative w-full max-w-2xl h-[400px] mx-auto bg-green-800 rounded-full border-8 border-brown-800 mb-8">
         {/* Center/Community Cards */}
@@ -141,25 +161,78 @@ const TrialSimulator = () => {
             key={player.position}
             className={`absolute ${seatPositions[player.position]}`}
           >
+            {/* Cards above player if it's the selected position */}
+            {player.position === selectedPosition && (
+              <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 flex gap-1">
+                {gameState.heroCards.map((card, idx) => (
+                  <div key={idx} className="w-8 h-12 bg-white rounded-sm flex items-center justify-center shadow-lg">
+                    <span className={`text-base ${getCardColor(card.suit)}`}>
+                      {card.rank}{card.suit}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Chips in front of raiser */}
+            {player.position === raisePosition && (
+              <div className={`absolute ${chipPositions[player.position]} flex items-center justify-center`}>
+                <div className="w-8 h-8 rounded-full bg-yellow-500 border-2 border-yellow-600 shadow-lg flex items-center justify-center text-black font-bold text-xs">
+                  3BB
+                </div>
+              </div>
+            )}
+
             <div className={`w-24 h-24 rounded-full flex flex-col items-center justify-center ${
               player.position === selectedPosition ? 'bg-blue-900' : 'bg-gray-800'
             } border-4 ${player.position === selectedPosition ? 'border-blue-500' : 'border-gray-700'}`}>
               <div className="text-white font-bold text-sm mb-1">{player.position}</div>
               <div className="text-yellow-400 text-xs">{player.stack} BB</div>
-              {player.position === selectedPosition && (
-                <div className="mt-1 flex gap-1">
-                  {gameState.heroCards.map((card, idx) => (
-                    <div key={idx} className="w-6 h-9 bg-white rounded-sm flex items-center justify-center">
-                      <span className={`text-sm ${getCardColor(card.suit)}`}>
-                        {card.rank}{card.suit}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
         ))}
+      </div>
+    );
+  };
+
+  const renderGTOBarChart = () => {
+    if (!gameState) return null;
+
+    const strategy = calculateGTOStrategy(
+      gameState.heroCards,
+      selectedPosition,
+      gameState.players.find(p => p.position === selectedPosition)?.stack
+    );
+
+    return (
+      <div className="bg-gray-800 rounded-lg p-6 mt-8">
+        <h4 className="text-lg font-semibold text-white mb-4">GTO Preflop Strategy</h4>
+        <div className="flex items-end h-32 gap-4">
+          <div className="flex-1 flex flex-col items-center">
+            <div 
+              className="w-full bg-green-600 rounded-t"
+              style={{ height: `${strategy.raise}%` }}
+            />
+            <div className="mt-2 text-white font-bold">{strategy.raise}%</div>
+            <div className="text-gray-400 text-sm">Raise</div>
+          </div>
+          <div className="flex-1 flex flex-col items-center">
+            <div 
+              className="w-full bg-yellow-600 rounded-t"
+              style={{ height: `${strategy.call}%` }}
+            />
+            <div className="mt-2 text-white font-bold">{strategy.call}%</div>
+            <div className="text-gray-400 text-sm">Call</div>
+          </div>
+          <div className="flex-1 flex flex-col items-center">
+            <div 
+              className="w-full bg-red-600 rounded-t"
+              style={{ height: `${strategy.fold}%` }}
+            />
+            <div className="mt-2 text-white font-bold">{strategy.fold}%</div>
+            <div className="text-gray-400 text-sm">Fold</div>
+          </div>
+        </div>
       </div>
     );
   };
@@ -186,47 +259,7 @@ const TrialSimulator = () => {
         </div>
 
         {renderPokerTable()}
-
-        {gameState && (
-          <div className="bg-gray-800 rounded-lg p-6 mt-8">
-            <div className="grid grid-cols-1 gap-6">
-              <div className="space-y-4">
-                <div className="bg-gray-700 p-4 rounded-lg">
-                  <h4 className="text-lg font-semibold text-white mb-2">Your Hand ({selectedPosition})</h4>
-                  <div className="flex gap-4 justify-center">
-                    {gameState.heroCards.map((card, index) => (
-                      <div key={index} className="w-14 h-20 bg-white rounded-lg shadow flex items-center justify-center">
-                        <span className={`text-2xl ${getCardColor(card.suit)}`}>
-                          {card.rank}{card.suit}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="bg-indigo-900 p-4 rounded-lg">
-                  <h4 className="text-lg font-semibold text-white mb-2">GTO Preflop Strategy</h4>
-                  <div className="space-y-2">
-                    {(() => {
-                      const strategy = calculateGTOStrategy(
-                        gameState.heroCards,
-                        selectedPosition,
-                        gameState.players.find(p => p.position === selectedPosition)?.stack
-                      );
-                      return (
-                        <div className="text-2xl text-center font-bold text-white space-y-2">
-                          <div>Raise: {strategy.raise}%</div>
-                          <div>Call: {strategy.call}%</div>
-                          <div>Fold: {strategy.fold}%</div>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {renderGTOBarChart()}
 
         <div className="fixed bottom-8 right-8 space-x-4">
           {gameState && (
