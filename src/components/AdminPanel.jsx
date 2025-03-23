@@ -51,6 +51,7 @@ const AdminPanel = () => {
         }
 
         console.log('Using API URL:', API_URL);
+        console.log('Token available:', !!token);
         
         // Fetch users
         const usersResponse = await fetch(`${API_URL}/api/admin/users`, {
