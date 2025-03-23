@@ -70,112 +70,40 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="relative z-20 bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex-shrink-0">
-              <span className="text-2xl font-bold text-primary">AdaptiGTO</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate('/trial')}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-secondary hover:bg-secondary-dark"
-              >
-                Try AdaptiGTO Free
-              </button>
-              {isSignedIn ? (
-                <div className="flex items-center space-x-4">
-                  <span className="text-gray-700">Welcome, {user.firstName || 'Player'}!</span>
-                  {isAdmin && (
-                    <button
-                      onClick={() => navigate('/admin')}
-                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-accent hover:bg-accent-dark"
-                    >
-                      Admin Panel
-                    </button>
-                  )}
-                  <button
-                    onClick={handlePreOrder}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark"
-                    disabled={preorderStatus === 'success'}
-                  >
-                    {preorderStatus === 'success' ? 'Pre-ordered!' : 'Pre-order Now'}
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center space-x-4">
-                  <SignInButton mode="modal">
-                    <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary bg-white hover:bg-gray-50 border-primary">
-                      Sign in
-                    </button>
-                  </SignInButton>
-                  <SignUpButton mode="modal">
-                    <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark">
-                      Sign up
-                    </button>
-                  </SignUpButton>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {preorderStatus && (
-        <div className={`fixed top-4 right-4 p-4 rounded-lg ${
-          preorderStatus === 'success' ? 'bg-green-500' : 
-          preorderStatus === 'already' ? 'bg-blue-500' :
-          'bg-red-500'
-        } text-white shadow-lg z-50 transition-opacity duration-500`}>
-          {preorderStatus === 'success' 
-            ? 'Thank you for pre-ordering! We\'ll notify you when AdaptiGTO launches.'
-            : preorderStatus === 'already'
-            ? 'You have already pre-ordered AdaptiGTO. Thank you for your support!'
-            : 'Failed to record pre-order. Please try again.'}
-        </div>
-      )}
-
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
-            <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
+          <div className="relative z-10 pb-8 bg-gray-50 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
+            <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 lg:mt-16">
               <div className="sm:text-center lg:text-left">
-                <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+                <h1 className="text-4xl tracking-tight font-bold text-gray-900 sm:text-5xl md:text-6xl">
                   <span className="block">Welcome to</span>
-                  <span className="block text-primary">AdaptiGTO</span>
+                  <span className="block text-blue-600">AdaptiGTO</span>
                 </h1>
                 <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                  Revolutionize your poker game with adaptive AI analysis. Our platform seamlessly integrates with your existing GTO calculators to provide dynamic, personalized adjustments to your gameplay.
+                  Advanced poker strategy powered by AI. Get personalized GTO recommendations and improve your game.
                 </p>
-                <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start space-x-4">
-                  <div className="rounded-md shadow">
-                    <button
-                      onClick={() => navigate('/trial')}
-                      className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-secondary hover:bg-secondary-dark md:py-4 md:text-lg md:px-10"
-                    >
-                      Try AdaptiGTO Free
-                    </button>
-                  </div>
+                <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
                   {isSignedIn ? (
                     <div className="rounded-md shadow">
                       <button
                         onClick={handlePreOrder}
-                        className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-dark md:py-4 md:text-lg md:px-10"
-                        disabled={preorderStatus === 'success'}
+                        className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10"
                       >
-                        {preorderStatus === 'success' ? 'Pre-ordered!' : 'Pre-order Now'}
-                        <ArrowRightIcon className="ml-2 h-5 w-5" />
+                        Pre-order Now
                       </button>
                     </div>
                   ) : (
-                    <div className="rounded-md shadow">
+                    <div className="space-y-4 sm:space-y-0 sm:space-x-4 flex flex-col sm:flex-row">
+                      <SignInButton mode="modal">
+                        <button className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10">
+                          Sign In
+                        </button>
+                      </SignInButton>
                       <SignUpButton mode="modal">
-                        <button className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-dark md:py-4 md:text-lg md:px-10">
-                          Get Started
-                          <ArrowRightIcon className="ml-2 h-5 w-5" />
+                        <button className="w-full flex items-center justify-center px-8 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10">
+                          Sign Up
                         </button>
                       </SignUpButton>
                     </div>
@@ -188,84 +116,121 @@ const LandingPage = () => {
       </div>
 
       {/* Features Section */}
-      <div className="py-12 bg-gray-50">
+      <div className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="lg:text-center">
-            <h2 className="text-base text-secondary font-semibold tracking-wide uppercase">Advanced Features</h2>
-            <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-              Next-Level Poker Analysis
+          <div className="text-center">
+            <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+              Why Choose AdaptiGTO?
+            </h2>
+            <p className="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
+              Advanced features to improve your poker game
             </p>
           </div>
 
           <div className="mt-10">
-            <div className="space-y-10 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
-              {features.map((feature) => (
-                <div key={feature.name} className="relative">
-                  <div className="flex items-center space-x-4">
-                    {feature.icon}
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">{feature.name}</h3>
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {/* Feature 1 */}
+              <div className="relative p-6 bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
+                <div className="flex items-center space-x-4">
+                  <div className="flex-shrink-0">
+                    <ServerIcon className="h-6 w-6 text-blue-600" />
                   </div>
-                  <p className="mt-2 ml-10 text-base text-gray-500">{feature.description}</p>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">Real-time Analysis</h3>
+                    <p className="mt-2 text-base text-gray-500">
+                      Get instant GTO recommendations for any poker situation.
+                    </p>
+                  </div>
                 </div>
-              ))}
+              </div>
+
+              {/* Feature 2 */}
+              <div className="relative p-6 bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
+                <div className="flex items-center space-x-4">
+                  <div className="flex-shrink-0">
+                    <LockClosedIcon className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">Secure Platform</h3>
+                    <p className="mt-2 text-base text-gray-500">
+                      Your data is protected with enterprise-grade security.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Feature 3 */}
+              <div className="relative p-6 bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
+                <div className="flex items-center space-x-4">
+                  <div className="flex-shrink-0">
+                    <CogIcon className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">Customizable</h3>
+                    <p className="mt-2 text-base text-gray-500">
+                      Adapt the system to your playing style and preferences.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* CTA Section */}
-      <div className="bg-primary">
-        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
-          <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-            <span className="block">Ready to elevate your poker game?</span>
-            <span className="block text-indigo-200">Pre-order AdaptiGTO today.</span>
-          </h2>
-          <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0">
-            <div className="inline-flex rounded-md shadow">
-              {isSignedIn ? (
-                <button
-                  onClick={handlePreOrder}
-                  className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-primary bg-white hover:bg-indigo-50"
-                  disabled={preorderStatus === 'success'}
-                >
-                  {preorderStatus === 'success' ? 'Pre-ordered!' : 'Pre-order Now'}
-                </button>
-              ) : (
-                <SignUpButton mode="modal">
-                  <button className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-primary bg-white hover:bg-indigo-50">
-                    Get Started
-                  </button>
-                </SignUpButton>
-              )}
-            </div>
-          </div>
+      {/* Navigation Links */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 px-4 sm:hidden">
+        <div className="flex justify-around">
+          <button
+            onClick={() => navigate('/trial')}
+            className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md text-sm font-medium"
+          >
+            Try Demo
+          </button>
+          {isAdmin && (
+            <button
+              onClick={() => navigate('/admin')}
+              className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              Admin
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Desktop Navigation */}
+      <div className="hidden sm:fixed sm:top-0 sm:right-0 sm:p-4">
+        <div className="flex space-x-4">
+          <button
+            onClick={() => navigate('/trial')}
+            className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md text-sm font-medium"
+          >
+            Try Demo
+          </button>
+          {isAdmin && (
+            <button
+              onClick={() => navigate('/admin')}
+              className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              Admin
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Status Messages */}
+      {preorderStatus === 'success' && (
+        <div className="fixed bottom-20 sm:bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+          <p className="text-center">Thank you for your pre-order!</p>
+        </div>
+      )}
+      {preorderStatus === 'error' && (
+        <div className="fixed bottom-20 sm:bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <p className="text-center">Please sign in to pre-order.</p>
+        </div>
+      )}
     </div>
   );
 };
-
-const features = [
-  {
-    name: 'Real-Time GTO Integration',
-    description: 'Seamlessly connects with your existing GTO calculators for instant analysis and adjustments during gameplay.',
-    icon: <ServerIcon className="h-6 w-6 text-secondary" />
-  },
-  {
-    name: 'Dynamic Performance Analytics',
-    description: 'Advanced AI algorithms analyze your play patterns and suggest optimal adjustments in real-time.',
-    icon: <ChartBarIcon className="h-6 w-6 text-secondary" />
-  },
-  {
-    name: 'Instant Feedback',
-    description: 'Receive immediate insights and recommendations to improve your decision-making process.',
-    icon: <LockClosedIcon className="h-6 w-6 text-secondary" />
-  },
-  {
-    name: 'Adaptive Learning',
-    description: 'Our AI continuously learns from your gameplay, providing increasingly personalized strategic advice.',
-    icon: <CogIcon className="h-6 w-6 text-secondary" />
-  },
-];
 
 export default LandingPage; 

@@ -5,7 +5,9 @@ import {
   UserGroupIcon,
   ClockIcon,
   CalendarIcon,
-  ShoppingCartIcon
+  ShoppingCartIcon,
+  ChartBarIcon,
+  UsersIcon
 } from '@heroicons/react/24/outline';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -18,11 +20,15 @@ const AdminPanel = () => {
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
   const [error, setError] = useState(null);
-  const [userStats, setUserStats] = useState({
-    total: 0,
-    activeToday: 0,
-    activeThisWeek: 0,
-    preOrders: 0
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    activeUsers: 0,
+    newUsersToday: 0,
+    visits: {
+      total: 0,
+      today: 0,
+      thisWeek: 0
+    }
   });
 
   // Check if the current user is authorized
@@ -32,9 +38,9 @@ const AdminPanel = () => {
     }
   }, [user, navigate]);
 
-  // Fetch users from Clerk
+  // Fetch users and visits from backend
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
@@ -43,49 +49,59 @@ const AdminPanel = () => {
         console.log('Admin token received:', token ? 'Token exists' : 'No token');
         console.log('Using API URL:', API_URL);
         
-        const response = await fetch(`${API_URL}/api/admin/users`, {
+        // Fetch users
+        const usersResponse = await fetch(`${API_URL}/api/admin/users`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
 
-        console.log('Admin response status:', response.status);
+        // Fetch visits
+        const visitsResponse = await fetch(`${API_URL}/api/admin/visits`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error('Admin fetch error:', errorData);
-          throw new Error(errorData.error || 'Failed to fetch users');
+        if (!usersResponse.ok || !visitsResponse.ok) {
+          const errorData = await ((!usersResponse.ok ? usersResponse : visitsResponse)).json();
+          throw new Error(errorData.error || 'Failed to fetch data');
         }
 
-        const data = await response.json();
-        console.log('Fetched users:', data);
+        const [usersData, visitsData] = await Promise.all([
+          usersResponse.json(),
+          visitsResponse.json()
+        ]);
         
-        if (!Array.isArray(data)) {
-          throw new Error('Invalid response format');
+        if (!Array.isArray(usersData)) {
+          throw new Error('Invalid users response format');
         }
 
-        setUsers(data);
-        setUserStats({
-          total: data.length,
-          activeToday: data.filter(u => 
-            new Date(u.lastSignInAt) > new Date(Date.now() - 86400000)
-          ).length,
-          activeThisWeek: data.filter(u => 
-            new Date(u.lastSignInAt) > new Date(Date.now() - 604800000)
-          ).length,
-          preOrders: data.filter(u => u.publicMetadata?.hasPreordered).length
+        // Process users data
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const activeUsers = usersData.filter(user => !user.blocked);
+        const newUsersToday = activeUsers.filter(user => new Date(user.createdAt) >= today);
+
+        setUsers(usersData);
+        setStats({
+          totalUsers: usersData.length,
+          activeUsers: activeUsers.length,
+          newUsersToday: newUsersToday.length,
+          visits: visitsData
         });
       } catch (error) {
-        console.error('Error fetching users:', error);
-        setError(error.message || 'Failed to load users. Please try again.');
+        console.error('Error fetching data:', error);
+        setError(error.message || 'Failed to load data. Please try again.');
       } finally {
         setLoading(false);
       }
     };
 
     if (user?.primaryEmailAddress?.emailAddress === 'coleragone@gmail.com') {
-      fetchUsers();
+      fetchData();
     }
   }, [user, getToken]);
 
@@ -119,218 +135,127 @@ const AdminPanel = () => {
     }
   };
 
+  if (loading) return <div className="p-4">Loading...</div>;
+  if (error) return <div className="p-4 text-red-600">Error: {error}</div>;
+
   return (
-    <div className="min-h-screen bg-background-dark text-white">
-      {/* Navigation */}
-      <nav className="bg-background-dark border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex-shrink-0">
-              <span className="text-2xl font-bold text-primary cursor-pointer" onClick={() => navigate('/')}>
-                AdaptiGTO
-              </span>
-            </div>
-            <div>
-              <span className="text-gray-300">Admin Panel</span>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {error && (
-          <div className="bg-red-500 text-white p-4 rounded-lg mb-8">
-            {error}
-          </div>
-        )}
+    <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-2xl font-semibold text-gray-900 mb-6">Admin Dashboard</h1>
         
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h3 className="text-lg font-semibold mb-2">Total Users</h3>
-            <p className="text-3xl font-bold text-primary">{userStats.total}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {/* Total Users */}
+          <div className="bg-white p-6 rounded-lg shadow">
+            <div className="flex items-center">
+              <UsersIcon className="h-8 w-8 text-blue-500" />
+              <div className="ml-4">
+                <p className="text-sm text-gray-600">Total Users</p>
+                <p className="text-2xl font-semibold">{stats.totalUsers}</p>
+              </div>
+            </div>
           </div>
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h3 className="text-lg font-semibold mb-2">Active Today</h3>
-            <p className="text-3xl font-bold text-secondary">{userStats.activeToday}</p>
+
+          {/* Active Users */}
+          <div className="bg-white p-6 rounded-lg shadow">
+            <div className="flex items-center">
+              <UserGroupIcon className="h-8 w-8 text-green-500" />
+              <div className="ml-4">
+                <p className="text-sm text-gray-600">Active Users</p>
+                <p className="text-2xl font-semibold">{stats.activeUsers}</p>
+              </div>
+            </div>
           </div>
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h3 className="text-lg font-semibold mb-2">Active This Week</h3>
-            <p className="text-3xl font-bold text-accent">{userStats.activeThisWeek}</p>
+
+          {/* New Users Today */}
+          <div className="bg-white p-6 rounded-lg shadow">
+            <div className="flex items-center">
+              <ClockIcon className="h-8 w-8 text-purple-500" />
+              <div className="ml-4">
+                <p className="text-sm text-gray-600">New Users Today</p>
+                <p className="text-2xl font-semibold">{stats.newUsersToday}</p>
+              </div>
+            </div>
           </div>
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h3 className="text-lg font-semibold mb-2">Pre-orders</h3>
-            <p className="text-3xl font-bold text-yellow-500">{userStats.preOrders}</p>
+
+          {/* Total Visits */}
+          <div className="bg-white p-6 rounded-lg shadow">
+            <div className="flex items-center">
+              <ChartBarIcon className="h-8 w-8 text-orange-500" />
+              <div className="ml-4">
+                <p className="text-sm text-gray-600">Website Visits</p>
+                <p className="text-2xl font-semibold">{stats.visits.total}</p>
+                <p className="text-sm text-gray-500">Today: {stats.visits.today}</p>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* User List */}
-        <div className="bg-gray-800 rounded-lg p-6">
-          <h2 className="text-xl font-bold mb-4">User Management</h2>
-          {loading ? (
-            <div className="text-center py-4">Loading users...</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-700">
-                <thead>
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                      User
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                      Email
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                      Sign Up Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                      Last Active
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                      Pre-ordered
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-700">
-                  {users.map((user) => (
-                    <tr key={user.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          {user.imageUrl ? (
-                            <img
-                              className="h-8 w-8 rounded-full mr-3"
-                              src={user.imageUrl}
-                              alt=""
-                            />
-                          ) : (
-                            <div className="h-8 w-8 rounded-full bg-gray-600 mr-3" />
-                          )}
-                          <div>
-                            <div className="text-sm font-medium">
-                              {user.firstName} {user.lastName}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {user.emailAddresses?.[0]?.emailAddress}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {new Date(user.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {new Date(user.lastSignInAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          user.publicMetadata?.hasPreordered
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {user.publicMetadata?.hasPreordered ? 'Pre-ordered' : 'Not Pre-ordered'}
-                        </span>
-                        {user.publicMetadata?.preorderDate && (
-                          <div className="text-xs text-gray-400 mt-1">
-                            {new Date(user.publicMetadata.preorderDate).toLocaleDateString()}
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+        {/* Users Table */}
+        <div className="mt-8 bg-white shadow overflow-hidden sm:rounded-lg">
+          <div className="px-4 py-5 sm:px-6 flex justify-between items-center flex-wrap gap-4">
+            <h2 className="text-lg leading-6 font-medium text-gray-900">User Management</h2>
+            <button
+              onClick={() => window.location.reload()}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Refresh List
+            </button>
+          </div>
+          
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    User
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {users.map((user) => (
+                  <tr key={user.id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {user.firstName} {user.lastName}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500">{user.emailAddresses[0]?.emailAddress}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        user.blocked ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                      }`}>
+                        {user.blocked ? 'Blocked' : 'Active'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <button
+                        onClick={() => handleBlockUser(user.id, !user.blocked)}
+                        className={`inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md ${
                           user.blocked
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-green-100 text-green-800'
-                        }`}>
-                          {user.blocked ? 'Blocked' : 'Active'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <button
-                          onClick={() => setSelectedUser(user)}
-                          className="text-primary hover:text-primary-dark mr-3"
-                        >
-                          View
-                        </button>
-                        <button
-                          onClick={() => handleBlockUser(user.id, !user.blocked)}
-                          className="text-red-500 hover:text-red-400"
-                        >
-                          {user.blocked ? 'Unblock' : 'Block'}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-
-        {/* User Detail Modal */}
-        {selectedUser && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-            <div className="bg-gray-800 rounded-lg p-6 max-w-2xl w-full">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-bold">User Details</h3>
-                <button
-                  onClick={() => setSelectedUser(null)}
-                  className="text-gray-400 hover:text-white"
-                >
-                  ✕
-                </button>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <h4 className="text-sm font-medium text-gray-400">User ID</h4>
-                  <p>{selectedUser.id}</p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-400">Name</h4>
-                  <p>{selectedUser.firstName} {selectedUser.lastName}</p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-400">Email</h4>
-                  <p>{selectedUser.emailAddresses?.[0]?.emailAddress}</p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-400">Created At</h4>
-                  <p>{new Date(selectedUser.createdAt).toLocaleString()}</p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-400">Last Active</h4>
-                  <p>{new Date(selectedUser.lastSignInAt).toLocaleString()}</p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-400">Pre-order Status</h4>
-                  <p>
-                    {selectedUser.publicMetadata?.hasPreordered ? (
-                      <>
-                        Pre-ordered on {new Date(selectedUser.publicMetadata.preorderDate).toLocaleString()}
-                      </>
-                    ) : (
-                      'Not pre-ordered'
-                    )}
-                  </p>
-                </div>
-                <div className="pt-4 flex justify-end space-x-4">
-                  <button
-                    onClick={() => setSelectedUser(null)}
-                    className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
+                            ? 'text-green-700 bg-green-100 hover:bg-green-200'
+                            : 'text-red-700 bg-red-100 hover:bg-red-200'
+                        }`}
+                      >
+                        {user.blocked ? 'Unblock' : 'Block'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

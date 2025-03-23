@@ -278,128 +278,99 @@ const TrialSimulator = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background-dark text-white">
-      {/* Navigation */}
-      <nav className="bg-background-dark border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex-shrink-0">
-              <span className="text-2xl font-bold text-primary cursor-pointer" onClick={() => navigate('/')}>
-                AdaptiGTO
-              </span>
-            </div>
-            <div>
-              <span className="text-gray-300">Trial Simulator</span>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-4">AdaptiGTO Hand Simulator</h1>
-          <p className="text-gray-400 mb-6">Experience real-time adaptive GTO analysis with our trial simulator</p>
-          <button
-            onClick={generateHand}
-            className="bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-lg transition duration-150 mr-4"
-            disabled={loading}
-          >
-            {loading ? 'Generating Hand...' : 'Generate New Hand'}
-          </button>
-          {gameState && gamePhase === 'preflop' && (
+          <h1 className="text-3xl font-bold text-gray-900">AdaptiGTO Trial</h1>
+          <p className="mt-2 text-sm text-gray-600">
+            Try our GTO poker simulator and get instant recommendations
+          </p>
+        </div>
+
+        {/* Game Controls */}
+        <div className="bg-white shadow rounded-lg p-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <button
+              onClick={generateHand}
+              className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <PlayIcon className="h-5 w-5 mr-2" />
+              Deal New Hand
+            </button>
             <button
               onClick={proceedToFlop}
-              className="bg-secondary hover:bg-secondary-dark text-white font-bold py-3 px-6 rounded-lg transition duration-150"
-              disabled={loading}
+              className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
+              <ArrowPathIcon className="h-5 w-5 mr-2" />
               See Flop
             </button>
-          )}
+            <button
+              onClick={() => {}}
+              className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            >
+              <ChartBarIcon className="h-5 w-5 mr-2" />
+              Show GTO Advice
+            </button>
+          </div>
         </div>
 
-        {gameState && (
-          <div className="bg-gray-800 rounded-lg p-6 mb-8">
-            <h2 className="text-xl font-bold mb-4">Hand Situation</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Your Hand</h3>
+        {/* Game State */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Poker Table */}
+          <div className="bg-white shadow rounded-lg p-6">
+            <h2 className="text-lg font-medium text-gray-900 mb-4">Poker Table</h2>
+            <div className="relative bg-green-800 rounded-lg p-4 aspect-[16/9]">
+              {/* Community Cards */}
+              <div className="flex justify-center space-x-2 mb-4">
+                {gameState?.flopCards.map((card, index) => (
+                  <div
+                    key={index}
+                    className="w-14 h-20 bg-white rounded-lg shadow flex items-center justify-center text-xl font-bold"
+                  >
+                    {card || '🂠'}
+                  </div>
+                ))}
+              </div>
+
+              {/* Player Cards */}
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
                 <div className="flex space-x-2">
-                  {gameState.heroCards.map((card, index) => (
+                  {gameState?.heroCards.map((card, index) => (
                     <div
                       key={index}
-                      className="w-16 h-24 bg-white rounded-lg flex items-center justify-center text-2xl"
-                      style={{
-                        color: card.includes('♥') || card.includes('♦') ? 'red' : 'black'
-                      }}
+                      className="w-14 h-20 bg-white rounded-lg shadow flex items-center justify-center text-xl font-bold"
                     >
-                      {card}
+                      {card || '🂠'}
                     </div>
                   ))}
                 </div>
-                {gamePhase === 'flop' && (
-                  <>
-                    <h3 className="text-lg font-semibold mb-2 mt-4">Flop</h3>
-                    <div className="flex space-x-2">
-                      {gameState.flopCards.map((card, index) => (
-                        <div
-                          key={index}
-                          className="w-16 h-24 bg-white rounded-lg flex items-center justify-center text-2xl"
-                          style={{
-                            color: card.includes('♥') || card.includes('♦') ? 'red' : 'black'
-                          }}
-                        >
-                          {card}
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-                <p className="mt-2">Position: {gameState.heroPosition}</p>
-                <p>Effective Stack: {gameState.effectiveStack}BB</p>
-                {gamePhase === 'flop' && <p>Pot Size: {potSize}BB</p>}
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Previous Action</h3>
-                {gameState.actionsBeforeHero.length > 0 ? (
-                  <ul className="space-y-2">
-                    {gameState.actionsBeforeHero.map((action, index) => (
-                      <li key={index}>
-                        {action.position}: {action.action}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>No action before you</p>
-                )}
               </div>
             </div>
           </div>
-        )}
 
-        {recommendation && (
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h2 className="text-xl font-bold mb-4">
-              {gamePhase === 'preflop' ? 'Preflop' : 'Flop'} Recommendation
-            </h2>
-            <div className="space-y-4">
-              {recommendation.map((rec, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <span>{rec.action}</span>
-                  <div className="w-2/3">
-                    <div className="h-4 bg-gray-700 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-primary"
-                        style={{ width: `${rec.frequency}%` }}
-                      ></div>
-                    </div>
-                    <span className="text-sm text-gray-400">{rec.frequency}%</span>
-                  </div>
+          {/* GTO Advice */}
+          <div className="bg-white shadow rounded-lg p-6">
+            <h2 className="text-lg font-medium text-gray-900 mb-4">GTO Analysis</h2>
+            {recommendation && (
+              <div className="space-y-4">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-sm font-medium text-gray-500">Recommended Action</h3>
+                  <p className="mt-1 text-lg font-semibold text-gray-900">{recommendation[0].action}</p>
                 </div>
-              ))}
-            </div>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-sm font-medium text-gray-500">Win Probability</h3>
+                  <p className="mt-1 text-lg font-semibold text-gray-900">{recommendation[0].frequency}%</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-sm font-medium text-gray-500">Explanation</h3>
+                  <p className="mt-1 text-sm text-gray-600">
+                    {recommendation[0].action === 'Check' ? 'This is a preflop check' : 'This is a preflop bet'}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
