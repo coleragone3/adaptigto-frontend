@@ -30,8 +30,9 @@ const LandingPage = () => {
       console.log('Getting token...');
       const token = await getToken();
       console.log('Token received:', token ? 'Token exists' : 'No token');
+      console.log('Using API URL:', API_URL);
       
-      const response = await fetch('http://localhost:3001/api/pre-order', {
+      const response = await fetch(`${API_URL}/api/pre-order`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
