@@ -7,15 +7,14 @@ const CARDS = {
   suits: ['♠', '♥', '♦', '♣']
 };
 
-const POSITIONS = ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
+const POSITIONS = ['UTG', 'UTG+1', 'MP', 'MP+1', 'HJ', 'CO', 'BTN', 'SB', 'BB'];
 
 const TrialSimulator = () => {
   const { user } = useUser();
   const navigate = useNavigate();
   const [showGTO, setShowGTO] = useState(false);
   const [gameState, setGameState] = useState(null);
-  const [selectedPosition, setSelectedPosition] = useState(null);
-  const [phase, setPhase] = useState('preflop'); // 'preflop' or 'postflop'
+  const [selectedPosition, setSelectedPosition] = useState('BTN'); // Default to button
 
   const generateRandomCard = (usedCards = []) => {
     let card;
@@ -46,10 +45,13 @@ const TrialSimulator = () => {
     setGameState({
       heroCards: [card1, card2],
       flopCards: [flop1, flop2, flop3],
-      potSize: 3 // Starting pot size in BB
+      potSize: 3, // Starting pot size in BB
+      players: POSITIONS.map(pos => ({
+        position: pos,
+        stack: Math.floor(Math.random() * (200 - 80) + 80), // Random stack between 80-200 BB
+        hasCards: true
+      }))
     });
-    setPhase('preflop');
-    setSelectedPosition(null);
     setShowGTO(false);
   };
 
@@ -57,30 +59,104 @@ const TrialSimulator = () => {
     return suit === '♥' || suit === '♦' ? 'text-red-400' : 'text-gray-100';
   };
 
-  const calculateGTOStrategy = (cards, position, phase, potSize) => {
-    // Simple GTO strategy calculation
+  const calculateGTOStrategy = (cards, position, stack) => {
     const handStrength = CARDS.ranks.indexOf(cards[0].rank) + CARDS.ranks.indexOf(cards[1].rank) / 13;
     const isSuited = cards[0].suit === cards[1].suit;
     const isPair = cards[0].rank === cards[1].rank;
     
-    if (phase === 'preflop') {
+    // More sophisticated GTO strategy based on position and stack depth
+    if (position === 'BTN' || position === 'CO') {
       if (isPair || (handStrength > 20) || (isSuited && handStrength > 18)) {
-        return { raise: 85, fold: 15 };
+        return { raise: 85, call: 10, fold: 5 };
       } else if (handStrength > 15) {
-        return { raise: 65, fold: 35 };
+        return { raise: 65, call: 20, fold: 15 };
       } else {
-        return { raise: 25, fold: 75 };
+        return { raise: 40, call: 20, fold: 40 };
+      }
+    } else if (position === 'SB') {
+      if (isPair || (handStrength > 20)) {
+        return { raise: 80, call: 15, fold: 5 };
+      } else {
+        return { raise: 30, call: 20, fold: 50 };
+      }
+    } else if (position === 'BB') {
+      if (isPair || handStrength > 18) {
+        return { raise: 70, call: 25, fold: 5 };
+      } else {
+        return { raise: 25, call: 45, fold: 30 };
       }
     } else {
-      // Postflop strategy
-      if (handStrength > 20) {
-        return { bet: 60, check: 35, fold: 5 };
-      } else if (handStrength > 15) {
-        return { bet: 40, check: 50, fold: 10 };
+      // Early position
+      if (isPair || handStrength > 22) {
+        return { raise: 90, call: 5, fold: 5 };
+      } else if (handStrength > 19) {
+        return { raise: 60, call: 10, fold: 30 };
       } else {
-        return { bet: 20, check: 50, fold: 30 };
+        return { raise: 15, call: 15, fold: 70 };
       }
     }
+  };
+
+  const renderPokerTable = () => {
+    if (!gameState) return null;
+
+    const seatPositions = {
+      'UTG': 'top-1/4 left-0',
+      'UTG+1': 'top-0 left-1/4',
+      'MP': 'top-0 left-1/2',
+      'MP+1': 'top-0 right-1/4',
+      'HJ': 'top-1/4 right-0',
+      'CO': 'bottom-1/4 right-0',
+      'BTN': 'bottom-0 right-1/4',
+      'SB': 'bottom-0 left-1/4',
+      'BB': 'bottom-1/4 left-0'
+    };
+
+    return (
+      <div className="relative w-full h-[600px] bg-green-800 rounded-full border-8 border-brown-800 mb-8">
+        {/* Center/Community Cards */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-2">
+          {gameState.flopCards.map((card, index) => (
+            <div key={index} className="w-14 h-20 bg-white rounded-lg shadow flex items-center justify-center">
+              <span className={`text-2xl ${getCardColor(card.suit)}`}>
+                {card.rank}{card.suit}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Pot Size */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-24 text-yellow-400 font-bold">
+          Pot: {gameState.potSize}BB
+        </div>
+
+        {/* Player Seats */}
+        {gameState.players.map((player, index) => (
+          <div
+            key={player.position}
+            className={`absolute ${seatPositions[player.position]} transform -translate-x-1/2 -translate-y-1/2`}
+          >
+            <div className={`w-32 h-32 rounded-full flex flex-col items-center justify-center ${
+              player.position === selectedPosition ? 'bg-blue-900' : 'bg-gray-800'
+            } border-4 ${player.position === selectedPosition ? 'border-blue-500' : 'border-gray-700'}`}>
+              <div className="text-white font-bold mb-1">{player.position}</div>
+              <div className="text-yellow-400 text-sm">{player.stack} BB</div>
+              {player.position === selectedPosition && (
+                <div className="mt-2 flex gap-1">
+                  {gameState.heroCards.map((card, idx) => (
+                    <div key={idx} className="w-8 h-12 bg-white rounded-sm flex items-center justify-center">
+                      <span className={`text-lg ${getCardColor(card.suit)}`}>
+                        {card.rank}{card.suit}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -95,12 +171,12 @@ const TrialSimulator = () => {
           </button>
         </div>
 
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
-            Try AdaptGTO
+            Poker Table Simulator
           </h2>
           <p className="mt-3 text-xl text-gray-300">
-            Experience the power of adaptive GTO poker strategy
+            Experience real-time GTO analysis in a familiar table setting
           </p>
         </div>
 
@@ -113,176 +189,82 @@ const TrialSimulator = () => {
           </button>
         </div>
 
-        {gameState && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Preflop Section */}
-            <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-              <div className="p-6">
-                <h3 className="text-2xl font-bold text-white mb-4">Preflop Trainer</h3>
-                <p className="text-gray-300 mb-6">
-                  Master preflop decisions with real-time GTO analysis
-                </p>
-                
-                <div className="space-y-4">
-                  <div className="bg-gray-700 p-4 rounded-lg">
-                    <h4 className="text-lg font-semibold text-white mb-2">Your Hand</h4>
-                    <div className="grid grid-cols-2 gap-4">
-                      {gameState.heroCards.map((card, index) => (
-                        <div key={index} className="bg-gray-600 p-3 rounded text-center">
-                          <span className={`text-2xl ${getCardColor(card.suit)}`}>
-                            {card.rank}{card.suit}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="bg-gray-700 p-4 rounded-lg">
-                    <h4 className="text-lg font-semibold text-white mb-2">Position</h4>
-                    <div className="grid grid-cols-3 gap-2">
-                      {POSITIONS.map(pos => (
-                        <button
-                          key={pos}
-                          onClick={() => setSelectedPosition(pos)}
-                          className={`${
-                            selectedPosition === pos
-                              ? 'bg-blue-600 hover:bg-blue-700'
-                              : 'bg-gray-600 hover:bg-gray-700'
-                          } text-white px-3 py-2 rounded transition-colors`}
-                        >
-                          {pos}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="bg-gray-700 p-4 rounded-lg">
-                    <h4 className="text-lg font-semibold text-white mb-2">Action</h4>
-                    <div className="grid grid-cols-2 gap-4">
-                      <button 
-                        onClick={() => setShowGTO(true)}
-                        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-                      >
-                        Raise 2.5BB
-                      </button>
-                      <button 
-                        onClick={() => setShowGTO(true)}
-                        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-                      >
-                        Fold
-                      </button>
-                    </div>
-                  </div>
-
-                  {showGTO && selectedPosition && (
-                    <div className="bg-indigo-900 p-4 rounded-lg">
-                      <h4 className="text-lg font-semibold text-white mb-2">GTO Analysis</h4>
-                      <p className="text-gray-300">
-                        {(() => {
-                          const strategy = calculateGTOStrategy(gameState.heroCards, selectedPosition, 'preflop');
-                          return `Raise 2.5BB (${strategy.raise}%) | Fold (${strategy.fold}%)`;
-                        })()}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Postflop Section */}
-            <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-              <div className="p-6">
-                <h3 className="text-2xl font-bold text-white mb-4">Postflop Trainer</h3>
-                <p className="text-gray-300 mb-6">
-                  Perfect your postflop strategy with dynamic GTO solutions
-                </p>
-                
-                <div className="space-y-4">
-                  <div className="bg-gray-700 p-4 rounded-lg">
-                    <h4 className="text-lg font-semibold text-white mb-2">Board</h4>
-                    <div className="grid grid-cols-3 gap-4">
-                      {gameState.flopCards.map((card, index) => (
-                        <div key={index} className="bg-gray-600 p-3 rounded text-center">
-                          <span className={`text-2xl ${getCardColor(card.suit)}`}>
-                            {card.rank}{card.suit}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="bg-gray-700 p-4 rounded-lg">
-                    <h4 className="text-lg font-semibold text-white mb-2">Pot Size: {gameState.potSize}BB</h4>
-                    <div className="grid grid-cols-3 gap-2">
-                      <button 
-                        onClick={() => {
-                          setPhase('postflop');
-                          setShowGTO(true);
-                        }}
-                        className="bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700"
-                      >
-                        Bet {Math.round(gameState.potSize * 0.66)}BB
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setPhase('postflop');
-                          setShowGTO(true);
-                        }}
-                        className="bg-yellow-600 text-white px-3 py-2 rounded hover:bg-yellow-700"
-                      >
-                        Check
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setPhase('postflop');
-                          setShowGTO(true);
-                        }}
-                        className="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700"
-                      >
-                        Fold
-                      </button>
-                    </div>
-                  </div>
-
-                  {showGTO && phase === 'postflop' && selectedPosition && (
-                    <div className="bg-indigo-900 p-4 rounded-lg">
-                      <h4 className="text-lg font-semibold text-white mb-2">GTO Analysis</h4>
-                      <p className="text-gray-300">
-                        {(() => {
-                          const strategy = calculateGTOStrategy(gameState.heroCards, selectedPosition, 'postflop', gameState.potSize);
-                          return `Bet ${Math.round(gameState.potSize * 0.66)}BB (${strategy.bet}%) | Check (${strategy.check}%) | Fold (${strategy.fold}%)`;
-                        })()}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {!gameState && (
-          <div className="text-center text-gray-300 text-lg">
-            Click "Deal New Hand" to start practicing!
-          </div>
-        )}
+        {renderPokerTable()}
 
         {gameState && (
-          <div className="mt-8 flex justify-center space-x-4">
-            <button
-              onClick={() => setShowGTO(!showGTO)}
-              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              {showGTO ? 'Hide GTO Analysis' : 'Show GTO Analysis'}
-            </button>
-            {!user && (
-              <a
-                href="/sign-up"
-                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-              >
-                Sign Up for Full Access
-              </a>
-            )}
+          <div className="bg-gray-800 rounded-lg p-6 mt-8">
+            <h3 className="text-xl font-bold text-white mb-4">GTO Analysis</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <h4 className="text-lg font-semibold text-white mb-2">Your Hand</h4>
+                  <div className="flex gap-4 justify-center">
+                    {gameState.heroCards.map((card, index) => (
+                      <div key={index} className="w-14 h-20 bg-white rounded-lg shadow flex items-center justify-center">
+                        <span className={`text-2xl ${getCardColor(card.suit)}`}>
+                          {card.rank}{card.suit}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <h4 className="text-lg font-semibold text-white mb-2">Position: {selectedPosition}</h4>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button 
+                      onClick={() => setShowGTO(true)}
+                      className="bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700"
+                    >
+                      Raise 2.5BB
+                    </button>
+                    <button 
+                      onClick={() => setShowGTO(true)}
+                      className="bg-yellow-600 text-white px-3 py-2 rounded hover:bg-yellow-700"
+                    >
+                      Call
+                    </button>
+                    <button 
+                      onClick={() => setShowGTO(true)}
+                      className="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700"
+                    >
+                      Fold
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {showGTO && (
+                <div className="bg-indigo-900 p-4 rounded-lg">
+                  <h4 className="text-lg font-semibold text-white mb-2">GTO Recommendation</h4>
+                  <div className="space-y-2">
+                    {(() => {
+                      const strategy = calculateGTOStrategy(
+                        gameState.heroCards,
+                        selectedPosition,
+                        gameState.players.find(p => p.position === selectedPosition)?.stack
+                      );
+                      return (
+                        <>
+                          <p className="text-gray-300">
+                            Raise 2.5BB: {strategy.raise}%
+                          </p>
+                          <p className="text-gray-300">
+                            Call: {strategy.call}%
+                          </p>
+                          <p className="text-gray-300">
+                            Fold: {strategy.fold}%
+                          </p>
+                          <div className="mt-4 text-sm text-gray-400">
+                            Based on: Position, Stack Depth, and Hand Strength
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
