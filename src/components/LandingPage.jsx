@@ -13,6 +13,11 @@ const LandingPage = () => {
     navigate('/');
   };
 
+  const handlePreOrderClick = () => {
+    console.log('Pre-order clicked by user:', user?.primaryEmailAddress?.emailAddress);
+    // You can add additional logging or analytics here
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-900 via-emerald-800 to-emerald-900">
       {/* Navigation */}
@@ -34,10 +39,11 @@ const LandingPage = () => {
                     Try Demo
                   </Link>
                   <Link
-                    to="/dashboard"
+                    to="/pre-order"
+                    onClick={handlePreOrderClick}
                     className="text-emerald-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                   >
-                    Dashboard
+                    Pre-order
                   </Link>
                   {user.primaryEmailAddress.emailAddress === 'coleragone@gmail.com' && (
                     <Link
@@ -111,12 +117,22 @@ const LandingPage = () => {
               >
                 Try Demo
               </Link>
-              <Link
-                to="/sign-in"
-                className="inline-flex items-center px-6 py-3 border border-emerald-400 text-base font-medium rounded-lg text-emerald-400 bg-transparent hover:bg-emerald-800/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
-              >
-                Get Started
-              </Link>
+              {isSignedIn ? (
+                <Link
+                  to="/pre-order"
+                  onClick={handlePreOrderClick}
+                  className="inline-flex items-center px-6 py-3 border border-emerald-400 text-base font-medium rounded-lg text-emerald-400 bg-transparent hover:bg-emerald-800/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+                >
+                  Pre-order
+                </Link>
+              ) : (
+                <Link
+                  to="/sign-in"
+                  className="inline-flex items-center px-6 py-3 border border-emerald-400 text-base font-medium rounded-lg text-emerald-400 bg-transparent hover:bg-emerald-800/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+                >
+                  Sign In
+                </Link>
+              )}
             </div>
           </div>
 
