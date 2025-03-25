@@ -67,6 +67,17 @@ const PreOrder = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-900 via-emerald-800 to-emerald-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-8 flex items-center text-emerald-400 hover:text-emerald-300 transition-colors duration-200"
+        >
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back
+        </button>
+
         {/* Background Pattern */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute left-1/2 top-0 transform -translate-x-1/2 blur-3xl opacity-20">
@@ -96,7 +107,8 @@ const PreOrder = () => {
         <div className="relative">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-white mb-4">Pre-order AdaptGTO</h1>
-            <p className="text-xl text-emerald-100">Choose the perfect plan for your poker journey</p>
+            <p className="text-xl text-emerald-100 mb-2">Choose the perfect plan for your poker journey</p>
+            <p className="text-emerald-300 text-sm">Lock in lifetime access before we switch to subscription pricing</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -124,6 +136,7 @@ const PreOrder = () => {
                     <span className="text-xl text-emerald-300 line-through ml-2">${tier.originalPrice}</span>
                   </div>
                   <p className="text-sm text-emerald-300 mt-2">One-time payment, lifetime access</p>
+                  <p className="text-xs text-emerald-400 mt-1">Save on future subscription costs</p>
                 </div>
                 <ul className="space-y-4 mb-8">
                   {tier.features.map((feature) => (
@@ -152,6 +165,9 @@ const PreOrder = () => {
           <div className="mt-12 text-center">
             <p className="text-emerald-100 text-sm">
               All plans include 30-day money-back guarantee and lifetime updates
+            </p>
+            <p className="text-emerald-300 text-xs mt-2">
+              Future versions will be subscription-based. Lock in lifetime access today!
             </p>
           </div>
         </div>
