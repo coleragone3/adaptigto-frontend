@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { useVisitTracker } from '../hooks/useVisitTracker';
@@ -56,7 +56,7 @@ const TrialSimulator = () => {
   };
 
   const getCardColor = (suit) => {
-    return suit === '♥' || suit === '♦' ? 'text-red-600' : 'text-gray-900';
+    return suit === '♥' || suit === '♦' ? 'text-red-500' : 'text-white';
   };
 
   const calculateGTOStrategy = (cards, position, stack) => {
@@ -100,12 +100,15 @@ const TrialSimulator = () => {
     if (!gameState) return null;
 
     return (
-      <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
+      <div className="bg-emerald-800/30 backdrop-blur-sm border border-emerald-700/50 rounded-xl shadow-lg p-8 mb-8">
         <div className="flex flex-col items-center space-y-6">
           {/* Cards */}
           <div className="flex gap-4">
             {gameState.heroCards.map((card, idx) => (
-              <div key={idx} className="w-20 h-32 bg-white rounded-xl border-2 border-gray-200 shadow-lg flex items-center justify-center transform hover:scale-105 transition-transform">
+              <div 
+                key={idx} 
+                className="w-24 h-36 bg-emerald-900 rounded-xl border-2 border-emerald-600/50 shadow-lg flex items-center justify-center transform hover:scale-105 transition-transform"
+              >
                 <span className={`text-4xl font-bold ${getCardColor(card.suit)}`}>
                   {card.rank}{card.suit}
                 </span>
@@ -115,14 +118,14 @@ const TrialSimulator = () => {
           
           {/* Game Info */}
           <div className="text-center space-y-2">
-            <div className="text-lg font-medium text-gray-900">
-              Position: <span className="text-blue-600">{gameState.position}</span>
+            <div className="text-lg font-medium text-white">
+              Position: <span className="text-emerald-400">{gameState.position}</span>
             </div>
-            <div className="text-gray-600">
+            <div className="text-emerald-200">
               Stack: {gameState.stack} BB
               {raisePosition && <span className="ml-2">• Raise from {raisePosition}</span>}
             </div>
-            <div className="text-gray-600">
+            <div className="text-emerald-200">
               Pot: {gameState.potSize} BB
             </div>
           </div>
@@ -141,18 +144,18 @@ const TrialSimulator = () => {
     );
 
     return (
-      <div className="bg-white rounded-xl shadow-lg p-8">
-        <h3 className="text-xl font-semibold text-gray-900 mb-6">GTO Preflop Strategy</h3>
+      <div className="bg-emerald-800/30 backdrop-blur-sm border border-emerald-700/50 rounded-xl shadow-lg p-8">
+        <h3 className="text-xl font-semibold text-white mb-6">GTO Preflop Strategy</h3>
         <div className="space-y-6">
           {/* Raise Action */}
           <div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-600">Raise</span>
-              <span className="text-sm font-semibold text-gray-900">{strategy.raise}%</span>
+              <span className="text-sm font-medium text-emerald-200">Raise</span>
+              <span className="text-sm font-semibold text-white">{strategy.raise}%</span>
             </div>
-            <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-3 bg-emerald-900/50 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-blue-500 rounded-full transition-all duration-500"
+                className="h-full bg-emerald-400 rounded-full transition-all duration-500"
                 style={{ width: `${strategy.raise}%` }}
               />
             </div>
@@ -161,12 +164,12 @@ const TrialSimulator = () => {
           {/* Call Action */}
           <div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-600">Call</span>
-              <span className="text-sm font-semibold text-gray-900">{strategy.call}%</span>
+              <span className="text-sm font-medium text-emerald-200">Call</span>
+              <span className="text-sm font-semibold text-white">{strategy.call}%</span>
             </div>
-            <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-3 bg-emerald-900/50 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-green-500 rounded-full transition-all duration-500"
+                className="h-full bg-emerald-500 rounded-full transition-all duration-500"
                 style={{ width: `${strategy.call}%` }}
               />
             </div>
@@ -175,12 +178,12 @@ const TrialSimulator = () => {
           {/* Fold Action */}
           <div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-600">Fold</span>
-              <span className="text-sm font-semibold text-gray-900">{strategy.fold}%</span>
+              <span className="text-sm font-medium text-emerald-200">Fold</span>
+              <span className="text-sm font-semibold text-white">{strategy.fold}%</span>
             </div>
-            <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-3 bg-emerald-900/50 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-red-500 rounded-full transition-all duration-500"
+                className="h-full bg-emerald-600 rounded-full transition-all duration-500"
                 style={{ width: `${strategy.fold}%` }}
               />
             </div>
@@ -191,42 +194,82 @@ const TrialSimulator = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-emerald-900 via-emerald-800 to-emerald-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute left-1/2 top-0 transform -translate-x-1/2 blur-3xl opacity-20">
+            <svg viewBox="0 0 1108 632" aria-hidden="true" className="w-[69.25rem] max-w-none">
+              <path
+                fill="url(#gradient)"
+                d="M235.233 402.609 57.541 321.573.83 631.05l234.404-228.441 320.018 145.945c-65.036-115.261-134.286-322.756 109.01-230.655C968.382 433.026 1031 651.247 1092.23 459.36c48.98-153.51-34.51-321.107-82.37-385.717L810.952 324.222 648.261.088 235.233 402.609Z"
+              />
+              <defs>
+                <linearGradient
+                  id="gradient"
+                  gradientUnits="userSpaceOnUse"
+                  x1="1220.59"
+                  x2="-85.053"
+                  y1="432.766"
+                  y2="638.714"
+                >
+                  <stop stopColor="#4ade80" />
+                  <stop offset=".5" stopColor="#22c55e" />
+                  <stop offset="1" stopColor="#15803d" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+        </div>
+
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-8 relative">
           <button
             onClick={() => navigate('/')}
-            className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-emerald-200 hover:text-white transition-colors"
           >
             ← Back to Home
           </button>
           <button
             onClick={dealNewHand}
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm"
+            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-emerald-900 bg-emerald-400 hover:bg-emerald-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 shadow-lg shadow-emerald-900/30 transition-all"
           >
             Deal New Hand
           </button>
         </div>
 
         {/* Title */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-12 relative">
+          <h1 className="text-4xl font-bold text-white mb-4">
             GTO Trainer
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-emerald-200">
             Practice optimal preflop decisions with instant GTO analysis
           </p>
         </div>
 
+        {/* Poker Chip Decoration */}
+        <div className="absolute top-24 -right-16 w-32 h-32 blur-sm opacity-20 pointer-events-none">
+          <svg viewBox="0 0 100 100" className="w-full h-full">
+            <circle cx="50" cy="50" r="45" fill="url(#chip-gradient)" />
+            <circle cx="50" cy="50" r="42" stroke="#fff" strokeWidth="1" fill="none" />
+            <defs>
+              <linearGradient id="chip-gradient" x1="0" y1="0" x2="100" y2="100">
+                <stop offset="0%" stopColor="#4ade80" />
+                <stop offset="100%" stopColor="#15803d" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
         {gameState ? (
-          <div className="space-y-8">
+          <div className="space-y-8 relative">
             {renderHand()}
             {renderGTOStrategy()}
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-gray-600">Click "Deal New Hand" to start practicing</p>
+            <p className="text-emerald-200">Click "Deal New Hand" to start practicing</p>
           </div>
         )}
       </div>
