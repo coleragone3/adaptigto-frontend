@@ -8,14 +8,65 @@ const PreOrder = () => {
   const navigate = useNavigate();
   useVisitTracker();
 
-  const handlePreOrder = () => {
-    console.log('Pre-order initiated by:', user?.primaryEmailAddress?.emailAddress);
+  const handlePreOrder = (tier) => {
+    console.log('Pre-order initiated by:', user?.primaryEmailAddress?.emailAddress, 'for tier:', tier);
     // Add your pre-order logic here
   };
 
+  const tiers = [
+    {
+      name: 'Basic',
+      price: 29.99,
+      originalPrice: 49.99,
+      description: 'Perfect for beginners',
+      features: [
+        'Basic GTO calculator',
+        'Hand history analysis',
+        'Basic strategy recommendations',
+        'Community support',
+        'Web-based access'
+      ],
+      highlight: false
+    },
+    {
+      name: 'Pro',
+      price: 79.99,
+      originalPrice: 149.99,
+      description: 'Most popular for serious players',
+      features: [
+        'Advanced GTO calculator',
+        'Real-time HUD integration',
+        'AI-powered analysis',
+        'Custom strategy builder',
+        'Priority support',
+        'Desktop application',
+        'Hand history tracking',
+        'Multi-table support'
+      ],
+      highlight: true
+    },
+    {
+      name: 'Enterprise',
+      price: 199.99,
+      originalPrice: 299.99,
+      description: 'For professional players and teams',
+      features: [
+        'Everything in Pro',
+        'Team management tools',
+        'Custom AI model training',
+        'API access',
+        'Dedicated support',
+        'Advanced analytics',
+        'Custom integrations',
+        'White-label options'
+      ],
+      highlight: false
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-900 via-emerald-800 to-emerald-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* Background Pattern */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute left-1/2 top-0 transform -translate-x-1/2 blur-3xl opacity-20">
@@ -45,59 +96,63 @@ const PreOrder = () => {
         <div className="relative">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-white mb-4">Pre-order AdaptGTO</h1>
-            <p className="text-xl text-emerald-100">Be among the first to master GTO poker with AI</p>
+            <p className="text-xl text-emerald-100">Choose the perfect plan for your poker journey</p>
           </div>
 
-          <div className="bg-emerald-800/30 backdrop-blur-sm border border-emerald-700/50 rounded-xl p-8 mb-8">
-            <h2 className="text-2xl font-semibold text-white mb-6">Early Access Benefits</h2>
-            <ul className="space-y-4">
-              <li className="flex items-start">
-                <svg className="w-6 h-6 text-emerald-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-emerald-100">Lifetime access to all features</span>
-              </li>
-              <li className="flex items-start">
-                <svg className="w-6 h-6 text-emerald-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-emerald-100">Priority support and updates</span>
-              </li>
-              <li className="flex items-start">
-                <svg className="w-6 h-6 text-emerald-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-emerald-100">Exclusive training content</span>
-              </li>
-              <li className="flex items-start">
-                <svg className="w-6 h-6 text-emerald-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-emerald-100">Early access to new features</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="bg-emerald-800/30 backdrop-blur-sm border border-emerald-700/50 rounded-xl p-8">
-            <h2 className="text-2xl font-semibold text-white mb-6">Pre-order Now</h2>
-            <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <span className="text-emerald-100">Early Access Price</span>
-                <span className="text-2xl font-bold text-white">$49.99</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-emerald-100">Regular Price</span>
-                <span className="text-xl text-emerald-300 line-through">$99.99</span>
-              </div>
-              <div className="pt-4 border-t border-emerald-700/50">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {tiers.map((tier) => (
+              <div
+                key={tier.name}
+                className={`relative rounded-xl p-8 ${
+                  tier.highlight
+                    ? 'bg-emerald-800/50 border-2 border-emerald-500 shadow-lg shadow-emerald-500/20'
+                    : 'bg-emerald-800/30 border border-emerald-700/50'
+                } backdrop-blur-sm`}
+              >
+                {tier.highlight && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-emerald-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                      Best Value
+                    </span>
+                  </div>
+                )}
+                <div className="text-center mb-8">
+                  <h2 className="text-2xl font-bold text-white mb-2">{tier.name}</h2>
+                  <p className="text-emerald-100 mb-4">{tier.description}</p>
+                  <div className="flex justify-center items-baseline">
+                    <span className="text-4xl font-bold text-white">${tier.price}</span>
+                    <span className="text-xl text-emerald-300 line-through ml-2">${tier.originalPrice}</span>
+                  </div>
+                  <p className="text-sm text-emerald-300 mt-2">One-time payment, lifetime access</p>
+                </div>
+                <ul className="space-y-4 mb-8">
+                  {tier.features.map((feature) => (
+                    <li key={feature} className="flex items-start">
+                      <svg className="w-5 h-5 text-emerald-400 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-emerald-100">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
                 <button
-                  onClick={handlePreOrder}
-                  className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                  onClick={() => handlePreOrder(tier.name)}
+                  className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors duration-200 ${
+                    tier.highlight
+                      ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                      : 'bg-emerald-800/50 hover:bg-emerald-800/70 text-emerald-400 border border-emerald-700/50'
+                  }`}
                 >
-                  Secure Pre-order
+                  Pre-order {tier.name}
                 </button>
               </div>
-            </div>
+            ))}
+          </div>
+
+          <div className="mt-12 text-center">
+            <p className="text-emerald-100 text-sm">
+              All plans include 30-day money-back guarantee and lifetime updates
+            </p>
           </div>
         </div>
       </div>
