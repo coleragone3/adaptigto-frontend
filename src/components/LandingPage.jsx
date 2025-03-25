@@ -1,249 +1,142 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useUser } from '@clerk/clerk-react';
-import {
-  ArrowRightIcon,
-  ChartBarIcon,
-  CogIcon,
-  LockClosedIcon,
-  ServerIcon,
-  ShieldCheckIcon
-} from '@heroicons/react/24/outline';
-import { SignInButton, SignUpButton, SignOutButton, useAuth } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+import { Link, useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
   const { isSignedIn, user } = useUser();
-  const { getToken } = useAuth();
   const navigate = useNavigate();
-  const isAdmin = user?.primaryEmailAddress?.emailAddress === 'coleragone@gmail.com';
-  const [preorderStatus, setPreorderStatus] = useState('');
 
-  const handlePreOrder = async () => {
-    if (!user) {
-      setPreorderStatus('error');
-      return;
-    }
-
-    try {
-      console.log('Getting token...');
-      const token = await getToken();
-      console.log('Token received:', token ? 'Token exists' : 'No token');
-      console.log('Using API URL:', API_URL);
-      
-      const response = await fetch(`${API_URL}/api/pre-order`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId: user.id })
-      });
-
-      console.log('Response status:', response.status);
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Server error response:', errorData);
-        throw new Error(errorData.error || 'Failed to record pre-order');
-      }
-
-      const data = await response.json();
-      console.log('Success response:', data);
-
-      if (data.message === 'Already pre-ordered') {
-        setPreorderStatus('already');
-      } else {
-        setPreorderStatus('success');
-      }
-    } catch (error) {
-      console.error('Pre-order error:', error);
-      console.error('User details:', {
-        id: user.id,
-        email: user.primaryEmailAddress?.emailAddress
-      });
-      setPreorderStatus('error');
-    }
-
-    setTimeout(() => setPreorderStatus(''), 3000);
+  const handleSignOut = async () => {
+    await user.delete();
+    navigate('/');
   };
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-          <div className="relative z-10 pb-8 bg-gray-900 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
-            <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 lg:mt-16">
-              <div className="sm:text-center lg:text-left">
-                <h1 className="text-4xl tracking-tight font-bold text-white sm:text-5xl md:text-6xl">
-                  <span className="block">Welcome to</span>
-                  <span className="block text-blue-500">AdaptiGTO</span>
-                </h1>
-                <p className="mt-3 text-base text-gray-300 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                  Advanced poker strategy powered by AI. Get personalized GTO recommendations and improve your game.
-                </p>
-                <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
-                  {isSignedIn ? (
-                    <div className="rounded-md shadow space-x-4">
-                      <button
-                        onClick={handlePreOrder}
-                        className="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10"
-                      >
-                        Pre-order Now
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="space-y-4 sm:space-y-0 sm:space-x-4 flex flex-col sm:flex-row">
-                      <SignInButton mode="modal">
-                        <button className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10">
-                          Sign In
-                        </button>
-                      </SignInButton>
-                      <SignUpButton mode="modal">
-                        <button className="w-full flex items-center justify-center px-8 py-3 border border-gray-300 text-base font-medium rounded-md text-white bg-gray-800 hover:bg-gray-700 md:py-4 md:text-lg md:px-10">
-                          Sign Up
-                        </button>
-                      </SignUpButton>
-                    </div>
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+      {/* Navigation */}
+      <nav className="fixed w-full bg-white/80 backdrop-blur-sm border-b border-gray-100 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <Link to="/" className="text-xl font-semibold text-gray-900">
+                AdaptGTO
+              </Link>
+            </div>
+            <div className="flex items-center space-x-4">
+              {isSignedIn ? (
+                <>
+                  <Link
+                    to="/trial"
+                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    Try Demo
+                  </Link>
+                  <Link
+                    to="/dashboard"
+                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    Dashboard
+                  </Link>
+                  {user.primaryEmailAddress.emailAddress === 'coleragone@gmail.com' && (
+                    <Link
+                      to="/admin"
+                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                    >
+                      Admin
+                    </Link>
                   )}
-                </div>
-              </div>
-            </main>
+                  <button
+                    onClick={handleSignOut}
+                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to="/sign-in"
+                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Sign In
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <div className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+              Master GTO Poker
+              <span className="block text-blue-600">with AI-Powered Analysis</span>
+            </h1>
+            <p className="mt-6 text-xl text-gray-600 max-w-3xl mx-auto">
+              Get instant feedback on your decisions and learn optimal strategies for every situation.
+            </p>
+            <div className="mt-10 flex justify-center gap-4">
+              <Link
+                to="/trial"
+                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Try Demo
+              </Link>
+              <Link
+                to="/sign-in"
+                className="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Get Started
+              </Link>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Features Section */}
-      <div className="py-12 bg-gray-800">
+      <div className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
-              Why Choose AdaptiGTO?
-            </h2>
-            <p className="mt-4 max-w-2xl text-xl text-gray-300 mx-auto">
-              Advanced features to improve your poker game
-            </p>
-          </div>
-
-          <div className="mt-10">
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {/* Feature 1 */}
-              <div className="relative p-6 bg-gray-700 rounded-lg border border-gray-600 hover:shadow-lg transition-shadow">
-                <div className="flex items-center space-x-4">
-                  <div className="flex-shrink-0">
-                    <ServerIcon className="h-6 w-6 text-blue-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-white">Real-time Analysis</h3>
-                    <p className="mt-2 text-base text-gray-300">
-                      Get instant GTO recommendations for any poker situation.
-                    </p>
-                  </div>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="p-6 rounded-xl bg-gray-50">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
               </div>
-
-              {/* Feature 2 */}
-              <div className="relative p-6 bg-gray-700 rounded-lg border border-gray-600 hover:shadow-lg transition-shadow">
-                <div className="flex items-center space-x-4">
-                  <div className="flex-shrink-0">
-                    <LockClosedIcon className="h-6 w-6 text-blue-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-white">Secure Platform</h3>
-                    <p className="mt-2 text-base text-gray-300">
-                      Your data is protected with enterprise-grade security.
-                    </p>
-                  </div>
-                </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Real-time Analysis</h3>
+              <p className="text-gray-600">Get instant feedback on your decisions with our advanced AI analysis.</p>
+            </div>
+            <div className="p-6 rounded-xl bg-gray-50">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
               </div>
-
-              {/* Feature 3 */}
-              <div className="relative p-6 bg-gray-700 rounded-lg border border-gray-600 hover:shadow-lg transition-shadow">
-                <div className="flex items-center space-x-4">
-                  <div className="flex-shrink-0">
-                    <CogIcon className="h-6 w-6 text-blue-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-white">Customizable</h3>
-                    <p className="mt-2 text-base text-gray-300">
-                      Adapt the system to your playing style and preferences.
-                    </p>
-                  </div>
-                </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">GTO Strategy</h3>
+              <p className="text-gray-600">Learn optimal strategies for every position and situation.</p>
+            </div>
+            <div className="p-6 rounded-xl bg-gray-50">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
               </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Interactive Learning</h3>
+              <p className="text-gray-600">Practice with our interactive simulator and track your progress.</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Navigation Links */}
-      {isSignedIn && (
-        <>
-          {/* Mobile Navigation */}
-          <div className="fixed bottom-0 left-0 right-0 bg-gray-800 border-t border-gray-700 py-2 px-4 sm:hidden z-50">
-            <div className="flex justify-around items-center">
-              <button
-                onClick={() => navigate('/trial')}
-                className="text-blue-400 hover:text-blue-300 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Try Demo
-              </button>
-              {isAdmin && (
-                <button
-                  onClick={() => navigate('/admin')}
-                  className="text-blue-400 hover:text-blue-300 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Admin
-                </button>
-              )}
-              <SignOutButton>
-                <button className="text-red-400 hover:text-red-300 px-3 py-2 rounded-md text-sm font-medium">
-                  Sign Out
-                </button>
-              </SignOutButton>
-            </div>
+      {/* Footer */}
+      <footer className="bg-gray-50 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+          <div className="text-center text-gray-500 text-sm">
+            © {new Date().getFullYear()} AdaptGTO. All rights reserved.
           </div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden sm:block sm:fixed sm:top-0 sm:right-0 sm:p-4 z-50 bg-gray-800 bg-opacity-90">
-            <div className="flex space-x-4 items-center">
-              <button
-                onClick={() => navigate('/trial')}
-                className="text-blue-400 hover:text-blue-300 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Try Demo
-              </button>
-              {isAdmin && (
-                <button
-                  onClick={() => navigate('/admin')}
-                  className="text-blue-400 hover:text-blue-300 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Admin
-                </button>
-              )}
-              <SignOutButton>
-                <button className="text-red-400 hover:text-red-300 px-3 py-2 rounded-md text-sm font-medium">
-                  Sign Out
-                </button>
-              </SignOutButton>
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Status Messages */}
-      {preorderStatus === 'success' && (
-        <div className="fixed bottom-20 sm:bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 bg-green-900 border border-green-700 text-green-100 px-4 py-3 rounded">
-          <p className="text-center">Thank you for your pre-order!</p>
         </div>
-      )}
-      {preorderStatus === 'error' && (
-        <div className="fixed bottom-20 sm:bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 bg-red-900 border border-red-700 text-red-100 px-4 py-3 rounded">
-          <p className="text-center">Please sign in to pre-order.</p>
-        </div>
-      )}
+      </footer>
     </div>
   );
 };
