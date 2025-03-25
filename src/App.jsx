@@ -6,6 +6,13 @@ import TrialSimulator from './components/TrialSimulator';
 import AdminPanel from './components/AdminPanel';
 import './App.css';
 
+// Your Clerk publishable key
+const PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
+
+if (!PUBLISHABLE_KEY) {
+  throw new Error("Missing Clerk Publishable Key");
+}
+
 function App() {
   const { user } = useUser();
   const isAdmin = user?.primaryEmailAddress?.emailAddress === 'coleragone@gmail.com';
