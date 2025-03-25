@@ -54,8 +54,10 @@ const AdminPanel = () => {
 
         console.log('Using API URL:', API_URL);
         console.log('Token available:', !!token);
+        console.log('User email:', user?.primaryEmailAddress?.emailAddress);
         
         // Fetch users
+        console.log('Fetching users from:', `${API_URL}/api/admin/users`);
         const usersResponse = await fetch(`${API_URL}/api/admin/users`, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -63,7 +65,14 @@ const AdminPanel = () => {
           }
         });
 
+        if (!usersResponse.ok) {
+          const errorData = await usersResponse.json();
+          console.error('Users API Error:', errorData);
+          throw new Error(errorData.error || `Failed to fetch users: ${usersResponse.status}`);
+        }
+
         // Fetch visits
+        console.log('Fetching visits from:', `${API_URL}/api/admin/visits`);
         const visitsResponse = await fetch(`${API_URL}/api/admin/visits`, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -71,9 +80,10 @@ const AdminPanel = () => {
           }
         });
 
-        if (!usersResponse.ok || !visitsResponse.ok) {
-          const errorData = await ((!usersResponse.ok ? usersResponse : visitsResponse)).json();
-          throw new Error(errorData.error || 'Failed to fetch data');
+        if (!visitsResponse.ok) {
+          const errorData = await visitsResponse.json();
+          console.error('Visits API Error:', errorData);
+          throw new Error(errorData.error || `Failed to fetch visits: ${visitsResponse.status}`);
         }
 
         const [usersData, visitsData] = await Promise.all([
@@ -82,6 +92,7 @@ const AdminPanel = () => {
         ]);
 
         if (!Array.isArray(usersData)) {
+          console.error('Invalid users response:', usersData);
           throw new Error('Invalid users response format');
         }
 
@@ -162,121 +173,135 @@ const AdminPanel = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-900 py-6 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl font-semibold text-white mb-6">Admin Dashboard</h1>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {/* Total Users */}
-          <div className="bg-gray-800 p-6 rounded-lg shadow border border-gray-700">
-            <div className="flex items-center">
-              <UsersIcon className="h-8 w-8 text-blue-400" />
-              <div className="ml-4">
-                <p className="text-sm text-gray-400">Total Users</p>
-                <p className="text-2xl font-semibold text-white">{stats.totalUsers}</p>
-              </div>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gray-900">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="fixed top-4 left-4 flex items-center text-emerald-400 hover:text-emerald-300 transition-colors"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back
+      </button>
 
-          {/* Active Users */}
-          <div className="bg-gray-800 p-6 rounded-lg shadow border border-gray-700">
-            <div className="flex items-center">
-              <UserGroupIcon className="h-8 w-8 text-green-400" />
-              <div className="ml-4">
-                <p className="text-sm text-gray-400">Active Users</p>
-                <p className="text-2xl font-semibold text-white">{stats.activeUsers}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* New Users Today */}
-          <div className="bg-gray-800 p-6 rounded-lg shadow border border-gray-700">
-            <div className="flex items-center">
-              <ClockIcon className="h-8 w-8 text-purple-400" />
-              <div className="ml-4">
-                <p className="text-sm text-gray-400">New Users Today</p>
-                <p className="text-2xl font-semibold text-white">{stats.newUsersToday}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Total Visits */}
-          <div className="bg-gray-800 p-6 rounded-lg shadow border border-gray-700">
-            <div className="flex items-center">
-              <ChartBarIcon className="h-8 w-8 text-orange-400" />
-              <div className="ml-4">
-                <p className="text-sm text-gray-400">Website Visits</p>
-                <p className="text-2xl font-semibold text-white">{stats.visits.total}</p>
-                <p className="text-sm text-gray-400">Today: {stats.visits.today}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Users Table */}
-        <div className="bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-700">
-          <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
-            <h2 className="text-lg font-medium text-white">User Management</h2>
-            <button
-              onClick={() => window.location.reload()}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Refresh List
-            </button>
-          </div>
+      {/* Admin Panel Content */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-2xl font-semibold text-white mb-6">Admin Dashboard</h1>
           
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-700">
-              <thead className="bg-gray-700">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    User
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-gray-800 divide-y divide-gray-700">
-                {users.map((user) => (
-                  <tr key={user.id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-white">
-                        {user.firstName} {user.lastName}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-300">{user.email}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        user.blocked ? 'bg-red-900 text-red-200' : 'bg-green-900 text-green-200'
-                      }`}>
-                        {user.blocked ? 'Blocked' : 'Active'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                      <button
-                        onClick={() => handleBlockUser(user.id, !user.blocked)}
-                        className={`inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md ${
-                          user.blocked
-                            ? 'text-green-200 bg-green-900 hover:bg-green-800'
-                            : 'text-red-200 bg-red-900 hover:bg-red-800'
-                        }`}
-                      >
-                        {user.blocked ? 'Unblock' : 'Block'}
-                      </button>
-                    </td>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            {/* Total Users */}
+            <div className="bg-gray-800 p-6 rounded-lg shadow border border-gray-700">
+              <div className="flex items-center">
+                <UsersIcon className="h-8 w-8 text-blue-400" />
+                <div className="ml-4">
+                  <p className="text-sm text-gray-400">Total Users</p>
+                  <p className="text-2xl font-semibold text-white">{stats.totalUsers}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Active Users */}
+            <div className="bg-gray-800 p-6 rounded-lg shadow border border-gray-700">
+              <div className="flex items-center">
+                <UserGroupIcon className="h-8 w-8 text-green-400" />
+                <div className="ml-4">
+                  <p className="text-sm text-gray-400">Active Users</p>
+                  <p className="text-2xl font-semibold text-white">{stats.activeUsers}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* New Users Today */}
+            <div className="bg-gray-800 p-6 rounded-lg shadow border border-gray-700">
+              <div className="flex items-center">
+                <ClockIcon className="h-8 w-8 text-purple-400" />
+                <div className="ml-4">
+                  <p className="text-sm text-gray-400">New Users Today</p>
+                  <p className="text-2xl font-semibold text-white">{stats.newUsersToday}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Total Visits */}
+            <div className="bg-gray-800 p-6 rounded-lg shadow border border-gray-700">
+              <div className="flex items-center">
+                <ChartBarIcon className="h-8 w-8 text-orange-400" />
+                <div className="ml-4">
+                  <p className="text-sm text-gray-400">Website Visits</p>
+                  <p className="text-2xl font-semibold text-white">{stats.visits.total}</p>
+                  <p className="text-sm text-gray-400">Today: {stats.visits.today}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Users Table */}
+          <div className="bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-700">
+            <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
+              <h2 className="text-lg font-medium text-white">User Management</h2>
+              <button
+                onClick={() => window.location.reload()}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Refresh List
+              </button>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-700">
+                <thead className="bg-gray-700">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      User
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Email
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="bg-gray-800 divide-y divide-gray-700">
+                  {users.map((user) => (
+                    <tr key={user.id}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-white">
+                          {user.firstName} {user.lastName}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-300">{user.email}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          user.blocked ? 'bg-red-900 text-red-200' : 'bg-green-900 text-green-200'
+                        }`}>
+                          {user.blocked ? 'Blocked' : 'Active'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                        <button
+                          onClick={() => handleBlockUser(user.id, !user.blocked)}
+                          className={`inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md ${
+                            user.blocked
+                              ? 'text-green-200 bg-green-900 hover:bg-green-800'
+                              : 'text-red-200 bg-red-900 hover:bg-red-800'
+                          }`}
+                        >
+                          {user.blocked ? 'Unblock' : 'Block'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
