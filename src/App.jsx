@@ -4,6 +4,7 @@ import { useUser, SignIn } from '@clerk/clerk-react';
 import LandingPage from './components/LandingPage';
 import TrialSimulator from './components/TrialSimulator';
 import AdminPanel from './components/AdminPanel';
+import PreOrder from './components/PreOrder';
 import './App.css';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/trial" element={<TrialSimulator />} />
+          <Route path="/pre-order" element={<PreOrder />} />
           <Route path="/sign-in/*" element={
             <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex items-center justify-center">
               <SignIn routing="path" path="/sign-in" />
