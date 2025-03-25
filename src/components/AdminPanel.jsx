@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser, useAuth } from '@clerk/clerk-react';
+import { useVisitTracker } from '../hooks/useVisitTracker';
 import {
   UserGroupIcon,
   ClockIcon,
@@ -16,6 +17,7 @@ const AdminPanel = () => {
   const navigate = useNavigate();
   const { user } = useUser();
   const { getToken } = useAuth();
+  useVisitTracker(); // Add visit tracking
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

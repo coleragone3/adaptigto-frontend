@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
+import { useVisitTracker } from '../hooks/useVisitTracker';
 
 const CARDS = {
   ranks: ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'],
@@ -12,6 +13,7 @@ const POSITIONS = ['UTG', 'UTG+1', 'MP', 'MP+1', 'HJ', 'CO', 'BTN', 'SB', 'BB'];
 const TrialSimulator = () => {
   const { user } = useUser();
   const navigate = useNavigate();
+  useVisitTracker();
   const [showFlop, setShowFlop] = useState(false);
   const [gameState, setGameState] = useState(null);
   const [selectedPosition, setSelectedPosition] = useState('BTN');

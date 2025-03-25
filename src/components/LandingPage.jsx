@@ -1,10 +1,12 @@
 import React from 'react';
 import { useUser } from '@clerk/clerk-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useVisitTracker } from '../hooks/useVisitTracker';
 
 const LandingPage = () => {
   const { isSignedIn, user } = useUser();
   const navigate = useNavigate();
+  useVisitTracker();
 
   const handleSignOut = async () => {
     await user.delete();
